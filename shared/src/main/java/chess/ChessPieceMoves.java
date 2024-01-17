@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Collection;
+
 public abstract class ChessPieceMoves {
 
     private ChessBoard board;
@@ -9,6 +11,8 @@ public abstract class ChessPieceMoves {
         this.myPosition = myPosition;
         this.board = board;
     }
+
+    public abstract Collection<ChessMove> getMoves();
 
 }
 
