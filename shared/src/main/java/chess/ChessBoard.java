@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Arrays;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -13,7 +15,6 @@ public class ChessBoard {
     public ChessBoard() {
         boardArray = new ChessPiece[8][8];
         this.resetBoard();
-        this.toString();
     }
 
     /**
@@ -24,7 +25,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
 
-        this.boardArray[position.getRow()][position.getColumn()] = piece;
+        this.boardArray[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
     /**
@@ -35,10 +36,10 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        if(this.boardArray[position.getRow()][position.getColumn()] == null){
+        if(this.boardArray[position.getRow()-1][position.getColumn()-1] == null){
             return null;
         }else{
-            return this.boardArray[position.getRow()][position.getColumn()];
+            return this.boardArray[position.getRow()-1][position.getColumn()-1];
         }
     }
 
@@ -49,14 +50,14 @@ public class ChessBoard {
     public void resetBoard() {
 
 //        ChessGame.TeamColor pieceColor, ChessPiece.PieceType type
-        this.boardArray[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+        this.boardArray[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         this.boardArray[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         this.boardArray[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-        this.boardArray[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
-        this.boardArray[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        this.boardArray[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        this.boardArray[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         this.boardArray[0][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
         this.boardArray[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-        this.boardArray[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+        this.boardArray[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
 
         for(int i = 0; i < this.boardArray.length; i++){
             this.boardArray[1][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
@@ -66,44 +67,57 @@ public class ChessBoard {
             this.boardArray[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
 
-        this.boardArray[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+        this.boardArray[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         this.boardArray[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         this.boardArray[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        this.boardArray[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-        this.boardArray[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        this.boardArray[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        this.boardArray[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
         this.boardArray[7][5] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
         this.boardArray[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        this.boardArray[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+        this.boardArray[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
-        System.out.println(this.boardArray);
 
     }
 
     @Override
     public String toString() {
 
+        String returnString = "";
+
         for (int i = 0; i < this.boardArray.length; i++){
             for (int j = 0; j < this.boardArray.length; j++){
 
                 if(this.boardArray[i][j] == null) {
-                    System.out.print(".");
+                    returnString += ".";
                 }else{
 
                     ChessPiece.PieceType type = this.boardArray[i][j].getPieceType();
 
                     switch(type) {
-                        case KING -> System.out.print("K");
-                        case PAWN -> System.out.print("P");
-                        case BISHOP -> System.out.print("B");
-                        case KNIGHT -> System.out.print("N");
-                        case QUEEN -> System.out.print("Q");
-                        case ROOK -> System.out.print("R");
+                        case KING -> returnString += "K";
+                        case PAWN -> returnString += "P";
+                        case BISHOP -> returnString += "B";
+                        case KNIGHT -> returnString += "N";
+                        case QUEEN -> returnString += "Q";
+                        case ROOK -> returnString += "R";
                     }
                 }
             }
-            System.out.println();
+            returnString += "\n";
         }
-        return null;
+        return returnString;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessBoard that = (ChessBoard) o;
+        return Arrays.deepEquals(boardArray, that.boardArray);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(boardArray);
+    }
 }
