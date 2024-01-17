@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class QueenMoves extends ChessPieceMoves {
@@ -10,6 +11,12 @@ public class QueenMoves extends ChessPieceMoves {
 
     @Override
     public Collection<ChessMove> getMoves() {
-        return null;
+        Collection<ChessMove> collection = new ArrayList<ChessMove>();
+
+        ChessMove exampleChessMove = new ChessMove(new ChessPosition(1,1), new ChessPosition(2,3),null);
+
+        collection.add(exampleChessMove);
+
+        return collection;
     }
 }
