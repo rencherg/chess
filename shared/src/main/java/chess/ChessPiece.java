@@ -55,3 +55,22 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
 }
+
+/*
+
+How to do this?
+
+Check how the
+
+
+Pawn:
+
+If enemy piece exists in attack place:
+(If enemy in row - 1 and col -1 or row -1 and col +1)
+
+If not moved:
+
+if
+
+
+ */
