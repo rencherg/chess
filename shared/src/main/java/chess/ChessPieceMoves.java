@@ -4,8 +4,8 @@ import java.util.Collection;
 
 public abstract class ChessPieceMoves {
 
-    private ChessBoard board;
-    private ChessPosition myPosition;
+    protected ChessBoard board;
+    protected ChessPosition myPosition;
 
     public ChessPieceMoves(ChessBoard board, ChessPosition myPosition){
         this.myPosition = myPosition;
