@@ -58,8 +58,6 @@ public class ChessPiece {
             return null;
         }
 
-        ChessPiece.PieceType selectedPieceType = board.getPiece(myPosition).getPieceType();
-
         switch(type) {
             case KING:
                 KingMoves myKingMoves = new KingMoves(board, myPosition);

@@ -13,13 +13,6 @@ public class KingMoves extends ChessPieceMoves {
     public Collection<ChessMove> getMoves() {
         Collection<ChessMove> collection = new ArrayList<ChessMove>();
 
-        int currentRow = this.myPosition.getRow();
-        int currentCol = this.myPosition.getColumn();
-
-//        boolean potentialMoves = true;
-
-        System.out.println(board.toString());
-
         nonRecursiveCheck(1,0,this.myPosition,this.myPosition,collection);
         nonRecursiveCheck(0,1,this.myPosition,this.myPosition,collection);
         nonRecursiveCheck(-1,0,this.myPosition,this.myPosition,collection);
