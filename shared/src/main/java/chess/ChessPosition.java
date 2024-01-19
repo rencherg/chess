@@ -46,4 +46,14 @@ public class ChessPosition {
     public int getColumn() {
         return this.boardCol;
     }
+
+    public boolean isValidPosition(){
+
+        if (((this.boardRow > 0) && (this.boardRow < 9)) && ((this.boardCol > 0) && (this.boardCol < 9))){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
 }
