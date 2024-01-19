@@ -14,7 +14,7 @@ public class ChessBoard {
 
     public ChessBoard() {
         boardArray = new ChessPiece[8][8];
-        this.resetBoard();
+//        this.resetBoard();
     }
 
     /**
@@ -92,15 +92,34 @@ public class ChessBoard {
                 }else{
 
                     ChessPiece.PieceType type = this.boardArray[i][j].getPieceType();
+                    ChessGame.TeamColor color = this.boardArray[i][j].getTeamColor();
 
-                    switch(type) {
-                        case KING -> returnString += "K";
-                        case PAWN -> returnString += "P";
-                        case BISHOP -> returnString += "B";
-                        case KNIGHT -> returnString += "N";
-                        case QUEEN -> returnString += "Q";
-                        case ROOK -> returnString += "R";
+
+                    switch(color){
+                        case WHITE:
+                            switch(type) {
+                                case KING -> returnString += "K";
+                                case PAWN -> returnString += "P";
+                                case BISHOP -> returnString += "B";
+                                case KNIGHT -> returnString += "N";
+                                case QUEEN -> returnString += "Q";
+                                case ROOK -> returnString += "R";
+                            }
+                            break;
+
+                        case BLACK:
+                            switch(type) {
+                                case KING -> returnString += "k";
+                                case PAWN -> returnString += "p";
+                                case BISHOP -> returnString += "b";
+                                case KNIGHT -> returnString += "n";
+                                case QUEEN -> returnString += "q";
+                                case ROOK -> returnString += "r";
+                            }
+                            break;
                     }
+
+
                 }
             }
             returnString += "\n";
