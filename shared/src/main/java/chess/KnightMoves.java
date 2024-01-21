@@ -13,14 +13,14 @@ public class KnightMoves extends ChessPieceMoves {
     public Collection<ChessMove> getMoves() {
         Collection<ChessMove> collection = new ArrayList<ChessMove>();
 
-        nonRecursiveCheck(1,2,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(2,1,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(-1,2,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(2,-1,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(1,-2,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(-2,1,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(-1,-2,this.myPosition,this.myPosition,collection);
-        nonRecursiveCheck(-2,-1,this.myPosition,this.myPosition,collection);
+        moveCheck(1,2,this.myPosition,this.myPosition,collection, false);
+        moveCheck(2,1,this.myPosition,this.myPosition,collection, false);
+        moveCheck(-1,2,this.myPosition,this.myPosition,collection, false);
+        moveCheck(2,-1,this.myPosition,this.myPosition,collection, false);
+        moveCheck(1,-2,this.myPosition,this.myPosition,collection, false);
+        moveCheck(-2,1,this.myPosition,this.myPosition,collection, false);
+        moveCheck(-1,-2,this.myPosition,this.myPosition,collection, false);
+        moveCheck(-2,-1,this.myPosition,this.myPosition,collection, false);
 
         return collection;
     }

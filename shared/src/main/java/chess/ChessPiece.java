@@ -95,22 +95,3 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 }
-
-/*
-
-How to do this?
-
-Check how the
-
-
-Pawn:
-
-If enemy piece exists in attack place:
-(If enemy in row - 1 and col -1 or row -1 and col +1)
-
-If not moved:
-
-if
-
-
- */

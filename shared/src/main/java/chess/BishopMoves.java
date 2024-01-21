@@ -13,10 +13,10 @@ public class BishopMoves extends ChessPieceMoves {
     public Collection<ChessMove> getMoves() {
         Collection<ChessMove> collection = new ArrayList<ChessMove>();
 
-        recursiveCheck(1,1,this.myPosition,this.myPosition,collection);
-        recursiveCheck(1,-1,this.myPosition,this.myPosition,collection);
-        recursiveCheck(-1,1,this.myPosition,this.myPosition,collection);
-        recursiveCheck(-1,-1,this.myPosition,this.myPosition,collection);
+        moveCheck(1,1,this.myPosition,this.myPosition,collection, true);
+        moveCheck(1,-1,this.myPosition,this.myPosition,collection, true);
+        moveCheck(-1,1,this.myPosition,this.myPosition,collection, true);
+        moveCheck(-1,-1,this.myPosition,this.myPosition,collection, true);
 
         return collection;
     }

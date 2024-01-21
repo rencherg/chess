@@ -16,7 +16,7 @@ public abstract class ChessPieceMoves {
 
     public abstract Collection<ChessMove> getMoves();
 
-    protected void recursiveCheck(int rowOffset, int colOffset, ChessPosition currentPosition, ChessPosition originalPosition, Collection<ChessMove> collection){
+    protected void moveCheck(int rowOffset, int colOffset, ChessPosition currentPosition, ChessPosition originalPosition, Collection<ChessMove> collection, boolean isRecursive){
 
         //create potential new position
         ChessPosition newPosition = new ChessPosition(currentPosition.getRow()+rowOffset, currentPosition.getColumn()+colOffset);
@@ -29,7 +29,9 @@ public abstract class ChessPieceMoves {
             //add move to collection and move to next position
             ChessMove currentMove = new ChessMove(originalPosition,newPosition,null);
             collection.add(currentMove);
-            recursiveCheck(rowOffset, colOffset, newPosition, originalPosition, collection);
+            if(isRecursive){
+                moveCheck(rowOffset, colOffset, newPosition, originalPosition, collection, true);
+            }
 
             //if occupied and enemy
         }else if(board.getPiece(newPosition).getTeamColor() != board.getPiece(originalPosition).getTeamColor()){
@@ -39,29 +41,4 @@ public abstract class ChessPieceMoves {
             collection.add(currentMove);
         }
     }
-
-    protected void nonRecursiveCheck(int rowOffset, int colOffset, ChessPosition currentPosition, ChessPosition originalPosition, Collection<ChessMove> collection){
-
-        //create potential new position
-        ChessPosition newPosition = new ChessPosition(currentPosition.getRow()+rowOffset, currentPosition.getColumn()+colOffset);
-
-        //check if position is on the board
-        if(!newPosition.isValidPosition()){
-
-            //if position empty:
-        } else if((board.getPiece(newPosition) == null) && newPosition.isValidPosition()){
-            //add move to collection and move to next position
-            ChessMove currentMove = new ChessMove(originalPosition,newPosition,null);
-            collection.add(currentMove);
-
-            //if occupied and enemy
-        }else if((board.getPiece(newPosition).getTeamColor() != board.getPiece(originalPosition).getTeamColor()) && newPosition.isValidPosition()){
-
-            //add to collection
-            ChessMove currentMove = new ChessMove(originalPosition,newPosition,null);
-            collection.add(currentMove);
-            System.out.println("Last else if added: row: " + newPosition.getRow() + ", col: "+ newPosition.getColumn());
-        }
-    }
-
 }
