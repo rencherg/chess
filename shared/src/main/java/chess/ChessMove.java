@@ -10,7 +10,9 @@ import java.util.Objects;
  */
 public class ChessMove {
 
-    ChessPosition startPosition;
+    private ChessPosition startPosition;
+    private ChessPosition endPosition;
+    private ChessPiece.PieceType promotionPiece;
 
     @Override
     public boolean equals(Object o) {
@@ -24,9 +26,6 @@ public class ChessMove {
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
-
-    ChessPosition endPosition;
-    ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -55,7 +56,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
-        Collection<ChessMove> collection = new ArrayList<ChessMove>();
+        Collection<ChessMove> collection;
 
         ChessPiece pieceAtPosition = this.board.getPiece(startPosition);
 
@@ -75,7 +76,47 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+
+        //Problems to address here -
+        //1. How does chessmove work with whos color it is?
+
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
+        //Get piece at original position
+        ChessPiece pieceOriginalPosition = board.getPiece(startPosition);
+
+        //Check if null at that position
+        if(pieceOriginalPosition == null){
+            throw new InvalidMoveException();
+        } else if(pieceOriginalPosition.getTeamColor() != this.color){
+            throw new InvalidMoveException();
+        }
+
+        Collection<ChessMove> collection = pieceOriginalPosition.pieceMoves(this.board, startPosition);
+
+        Iterator<ChessMove> iterator = collection.iterator();
+
+        ChessMove currentMove;
+
+        boolean foundMove = false;
+
+        while(iterator.hasNext()){
+            currentMove = iterator.next();
+            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
+            if((currentMove.getEndPosition().getRow() == endPosition.getRow()) && (currentMove.getEndPosition().getColumn() == endPosition.getColumn())){
+                foundMove = true;
+                this.board.addPiece(endPosition, pieceOriginalPosition);
+                this.board.addPiece(startPosition, null);
+                break;
+            }
+        }
+
+        if(!foundMove){
+            throw new InvalidMoveException();
+        }
+
+        //Throw error if there is a null or move is invalid there
     }
 
     /**
