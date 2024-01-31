@@ -59,5 +59,4 @@ public class ChessMove {
         return this.promotionPiece;
     }
 
-
 }

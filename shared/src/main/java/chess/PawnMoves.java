@@ -38,6 +38,7 @@ public class PawnMoves extends ChessPieceMoves {
 
 
         if (emptyPosition1.isValidPosition() && (board.getPiece(emptyPosition1) == null)) {
+
             //if promotion needed
             if((emptyPosition1.getRow() == 8) || (emptyPosition1.getRow() == 1)){
                 for (ChessPiece.PieceType piece : ChessPiece.PieceType.values()) {
