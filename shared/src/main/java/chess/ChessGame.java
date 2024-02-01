@@ -56,6 +56,8 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
+        //Some moves can't be made due to the King being in Check.
+
         Collection<ChessMove> collection;
 
         ChessPiece pieceAtPosition = this.board.getPiece(startPosition);
@@ -112,11 +114,48 @@ public class ChessGame {
             }
         }
 
+        //Throw error if there is a null or move is invalid there
         if(!foundMove){
             throw new InvalidMoveException();
         }
+    }
 
-        //Throw error if there is a null or move is invalid there
+    private ChessPosition findKing(TeamColor teamColor){
+
+//        ChessPosition position;
+
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+//                position = new ChessPosition(i, j);
+                ChessPiece pieceAtPosition = this.board.getPiece(new ChessPosition(i, j));
+                if((pieceAtPosition != null )&&(pieceAtPosition.getPieceType() == ChessPiece.PieceType.KING)&&(pieceAtPosition.getTeamColor() == teamColor)){
+                    return new ChessPosition(i, j);
+                }
+            }
+        }
+        return null;
+    }
+
+    //return true if given piece has given position as a possible move
+    private boolean pieceContainsMove(ChessPiece currentPiece, ChessPosition currentPosition, ChessPosition targetPosition) {
+
+        Collection<ChessMove> collection = currentPiece.pieceMoves(this.board, new ChessPosition(currentPosition.getRow(), currentPosition.getColumn()));
+
+        Iterator<ChessMove> iterator = collection.iterator();
+
+        ChessMove currentMove;
+
+        boolean foundMove = false;
+
+        while (iterator.hasNext()) {
+            currentMove = iterator.next();
+//            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
+            if ((currentMove.getEndPosition().getRow() == targetPosition.getRow()) && (currentMove.getEndPosition().getColumn() == targetPosition.getColumn())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -126,7 +165,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        ChessPosition kingPosition = findKing(teamColor);
+
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+                ChessPiece pieceAtPosition = this.board.getPiece(new ChessPosition(i, j));
+                if((pieceAtPosition != null )&&(pieceAtPosition.getTeamColor() != teamColor) && pieceContainsMove(pieceAtPosition,new ChessPosition(i, j), kingPosition)){
+
+                    return true;
+
+                }
+            }
+        }
+
+        return false;
+
     }
 
     /**
