@@ -1,5 +1,7 @@
 package chess;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,17 +58,31 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
-        //Some moves can't be made due to the King being in Check.
+        //Return all valid moves that will result in the team not being in check after the move
+        //How?
 
         Collection<ChessMove> collection;
 
+        //If piece is null return null
         ChessPiece pieceAtPosition = this.board.getPiece(startPosition);
 
         if(pieceAtPosition == null){
             return null;
         }
 
+        //Create global Variable for the last move made
+        //Implement undo move functionality - probably should handle turn color
+        //Write a simple function to actually move pieces on the board - no checks
+        //Also probably should handle turn color
+        //Create Local variable for team color
+        //Get every single move for that piece
         collection = pieceAtPosition.pieceMoves(this.board, startPosition);
+        //For each move
+        //Make the hypothetical move,
+        //If the team is not in check add that move to the list of valid moves
+        //undo the move
+
+        //Return the list of valid moves.
 
         return collection;
     }
@@ -79,8 +95,13 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        //Problems to address here -
+        //How to do this function -
         //1. How does chessmove work with whos color it is?
+        //It seems like this method should change the turn color after a move
+        //Also reject out of turn move
+        //2. Implement this LAST
+        //3. Another method will handle the actual piece changing
+        //4. Pretty much get the list of valid moves and if the given move isn't one then throw error
 
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
@@ -164,7 +185,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
+    public boolean isInCheck(@NotNull TeamColor teamColor) {
 
         ChessPosition kingPosition = findKing(teamColor);
 
@@ -183,6 +204,7 @@ public class ChessGame {
 
     }
 
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -190,6 +212,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        //If valid moves returns no moves
         throw new RuntimeException("Not implemented");
     }
 
@@ -201,6 +224,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        //No moves at all are reported and it is our turn
+        //Maybe the same as isInCheckmate?
         throw new RuntimeException("Not implemented");
     }
 
@@ -210,6 +235,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
+        //Does it need to be a deep copy?
         this.board = board;
     }
 
