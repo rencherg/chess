@@ -231,8 +231,6 @@ public class ChessGame {
 
         ChessPosition kingPosition = findKing(teamColor);
 
-//        System.out.println(kingPosition.toString());
-
         for(int i = 1; i < 9; i++){
             for(int j = 1; j < 9; j++){
                 ChessPiece pieceAtPosition = this.board.getPiece(new ChessPosition(i, j));
@@ -256,8 +254,19 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        //If valid moves returns no moves
-        throw new RuntimeException("Not implemented");
+
+        Collection<ChessMove> allValidMoves = new ArrayList<>();
+
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+
+                ChessPiece pieceAtPosition = this.board.getPiece(new ChessPosition(i, j));
+                if((pieceAtPosition != null )&&(pieceAtPosition.getTeamColor() == teamColor)){
+                    allValidMoves.addAll(this.validMoves(new ChessPosition(i, j)));
+                }
+            }
+        }
+        return (allValidMoves.isEmpty());
     }
 
     /**
