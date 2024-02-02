@@ -2,6 +2,7 @@ package chess;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Watchable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,6 +17,8 @@ public class ChessGame {
 
     private ChessBoard board;
     private ChessGame.TeamColor color;
+    private ChessMove lastMove;
+    private ChessPiece lastMoveDestinationPiece;
 
     public ChessGame() {
 
@@ -49,6 +52,32 @@ public class ChessGame {
         BLACK
     }
 
+    private void undoMove(){
+
+        this.board.addPiece(this.lastMove.getStartPosition(), this.board.getPiece(this.lastMove.getEndPosition()));
+        this.board.addPiece(this.lastMove.getEndPosition(), this.lastMoveDestinationPiece);
+
+        this.lastMove = null;
+        this.lastMoveDestinationPiece = null;
+        this.switchTurn();
+    }
+
+    private void executeMove(ChessMove move){
+        this.lastMoveDestinationPiece = this.board.getPiece(move.getEndPosition());
+        this.board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        this.board.addPiece(move.getStartPosition(), null);
+        this.lastMove = move;
+        this.switchTurn();
+    }
+
+    private void switchTurn(){
+        if (this.color == TeamColor.BLACK){
+            this.color = TeamColor.WHITE;
+        }else{
+            this.color = TeamColor.BLACK;
+        }
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -56,12 +85,14 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+    public Collection<ChessMove> validMoves(ChessPosition startPosition){
+
+        ChessGame.TeamColor currentColor = board.getPiece(startPosition).getTeamColor();
 
         //Return all valid moves that will result in the team not being in check after the move
         //How?
 
-        Collection<ChessMove> collection;
+        Collection<ChessMove> validMoves = new ArrayList<>();
 
         //If piece is null return null
         ChessPiece pieceAtPosition = this.board.getPiece(startPosition);
@@ -70,21 +101,32 @@ public class ChessGame {
             return null;
         }
 
-        //Create global Variable for the last move made
-        //Implement undo move functionality - probably should handle turn color
-        //Write a simple function to actually move pieces on the board - no checks
-        //Also probably should handle turn color
-        //Create Local variable for team color
-        //Get every single move for that piece
-        collection = pieceAtPosition.pieceMoves(this.board, startPosition);
-        //For each move
-        //Make the hypothetical move,
-        //If the team is not in check add that move to the list of valid moves
-        //undo the move
+        //✅Create global Variable for the last move made
+        //✅Implement undo move functionality - probably should handle turn color
+        //✅Write a simple function to actually move pieces on the board - no checks
+        //✅Also probably should handle turn color
+        //✅Create Local variable for team color
 
-        //Return the list of valid moves.
+        //✅Get every single possible move for that piece
+        Collection<ChessMove> potentialMoves = pieceAtPosition.pieceMoves(this.board, startPosition);
 
-        return collection;
+        //✅For each move
+        //✅Make the hypothetical move,
+        //✅If the team is not in check add that move to the list of valid moves
+        //✅undo the move
+        ChessMove holder = null;
+        Iterator<ChessMove> moveIterator = potentialMoves.iterator();
+        while(moveIterator.hasNext()){
+            holder = moveIterator.next();
+            this.executeMove(holder);
+            if(!this.isInCheck(currentColor)){
+                validMoves.add(holder);
+            }
+            this.undoMove();
+        }
+
+        //✅Return the list of valid moves.
+        return validMoves;
     }
 
     /**
@@ -126,7 +168,7 @@ public class ChessGame {
 
         while(iterator.hasNext()){
             currentMove = iterator.next();
-            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
+//            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
             if((currentMove.getEndPosition().getRow() == endPosition.getRow()) && (currentMove.getEndPosition().getColumn() == endPosition.getColumn())){
                 foundMove = true;
                 this.board.addPiece(endPosition, pieceOriginalPosition);
@@ -147,8 +189,8 @@ public class ChessGame {
 
         for(int i = 1; i < 9; i++){
             for(int j = 1; j < 9; j++){
-//                position = new ChessPosition(i, j);
                 ChessPiece pieceAtPosition = this.board.getPiece(new ChessPosition(i, j));
+
                 if((pieceAtPosition != null )&&(pieceAtPosition.getPieceType() == ChessPiece.PieceType.KING)&&(pieceAtPosition.getTeamColor() == teamColor)){
                     return new ChessPosition(i, j);
                 }
@@ -188,6 +230,8 @@ public class ChessGame {
     public boolean isInCheck(@NotNull TeamColor teamColor) {
 
         ChessPosition kingPosition = findKing(teamColor);
+
+//        System.out.println(kingPosition.toString());
 
         for(int i = 1; i < 9; i++){
             for(int j = 1; j < 9; j++){
