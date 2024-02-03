@@ -21,14 +21,12 @@ public class ChessGame {
     private ChessGame.TeamColor color;
     private ChessMove lastMove;
     private ChessPiece lastMoveDestinationPiece;
-//    private Boolean lastMovePromotion;
 
     public ChessGame() {
 
         board = new ChessBoard();
         board.resetBoard();
         color = TeamColor.WHITE;
-//        this.lastMovePromotion = false;
 
     }
 
@@ -85,12 +83,9 @@ public class ChessGame {
     }
 
     private void switchTurn(){
-//        System.out.println("Switch turn");
         if (this.color == TeamColor.BLACK){
-//            System.out.println("Switch turn to white");
             this.color = TeamColor.WHITE;
         }else{
-//            System.out.println("Switch turn to black");
             this.color = TeamColor.BLACK;
         }
     }
@@ -104,15 +99,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition){
 
-//        System.out.println("Colorz");
         ChessGame.TeamColor currentColor = board.getPiece(startPosition).getTeamColor();
-//        System.out.println(currentColor);
-//        System.out.println(this.color);
-//        System.out.println(currentColor);
-//        ChessGame.TeamColor currentColor = this.color;
-
-        //Return all valid moves that will result in the team not being in check after the move
-        //How?
 
         Collection<ChessMove> validMoves = new ArrayList<>();
 
@@ -132,8 +119,6 @@ public class ChessGame {
         //✅Get every single possible move for that piece
         Collection<ChessMove> potentialMoves = pieceAtPosition.pieceMoves(this.board, startPosition);
 
-//        System.out.println("We are here");
-
         //If there is no king on the board then it's impossible to be in check
         if(this.findKing(currentColor) == null){
             return potentialMoves;
@@ -147,10 +132,7 @@ public class ChessGame {
         Iterator<ChessMove> moveIterator = potentialMoves.iterator();
         while(moveIterator.hasNext()){
             holder = moveIterator.next();
-//            System.out.println(currentColor + "here");
-//            System.out.println(holder);
             this.executeMove(holder);
-//            System.out.println(currentColor + "here");
             if(!this.isInCheck(currentColor)){
                 validMoves.add(holder);
             }
@@ -169,53 +151,19 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-//        System.out.println(this.color);
-
-        //How to do this function -
-        //1. How does chess move work with whose color it is?
-        //It seems like this method should change the turn color after a move
-        //Also reject out of turn move
-        //2. Implement this LAST
-        //3. Another method will handle the actual piece changing
-        //4. Pretty much get the list of valid moves and if the given move isn't one then throw error
-
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
-
-//        System.out.println("Startposition: " + startPosition.getRow() + " " + startPosition.getColumn());
 
         //Get piece at original position
         ChessPiece selectedPiece = board.getPiece(startPosition);
 
-//        System.out.println(selectedPiece.getTeamColor());
-//        System.out.println(selectedPiece.getPieceType());
-//        System.out.println(this.passInt);
-//        System.out.println(this.board.toString());
-//        System.out.println("First part");
-//        System.out.println(this.board.getPiece(new ChessPosition(7, 8)));
-//        System.out.println(this.board.getPiece(startPosition));
-//        System.out.println(this.board.getPiece(new ChessPosition(8, 7)));
-
         //Check if null at that position
         if(selectedPiece == null){
-//            System.out.println(selectedPiece.getPieceType());
             throw new InvalidMoveException();
 
         } else if(selectedPiece.getTeamColor() != this.color){
-//            System.out.println(selectedPiece.getPieceType());
             throw new InvalidMoveException();
         }
-
-//        System.out.println("We are here");
-
-//        System.out.println(startPosition.getRow());
-
-//        System.out.println("We are here");
-//        System.out.println("We are here");
-//        System.out.println(startPosition);
-//        System.out.println(board.getPiece(startPosition).getTeamColor());
-//        System.out.println(this.color);
-//        System.out.println(board.getPiece(startPosition).getPieceType());
 
         Collection<ChessMove> validMoves = this.validMoves(startPosition);
 
@@ -227,18 +175,12 @@ public class ChessGame {
 
         while(iterator.hasNext()){
             currentMove = iterator.next();
-//            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
             if((currentMove.getEndPosition().getRow() == endPosition.getRow()) && (currentMove.getEndPosition().getColumn() == endPosition.getColumn())){
-//                System.out.println("Inside Iteration");
                 foundMove = true;
                 this.executeMove(move);
                 break;
             }
         }
-
-//        System.out.println(this.passInt);
-//        System.out.println(this.board.toString());
-//        System.out.println("Last part");
 
         //Throw error if there is a null or move is invalid there
         if(!foundMove){
@@ -277,7 +219,6 @@ public class ChessGame {
 
         while (iterator.hasNext()) {
             currentMove = iterator.next();
-//            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
             if ((currentMove.getEndPosition().getRow() == targetPosition.getRow()) && (currentMove.getEndPosition().getColumn() == targetPosition.getColumn())) {
                 return true;
             }
@@ -296,11 +237,8 @@ public class ChessGame {
 
         ChessPosition kingPosition = findKing(teamColor);
 
-//        System.out.println(teamColor);
-
         if(kingPosition == null) {
 
-//            System.out.println("King Position is null");
         }
 
         for(int i = 1; i < 9; i++){
