@@ -351,7 +351,7 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         //No moves at all are reported and it is our turn
         //Maybe the same as isInCheckmate?
-        throw new RuntimeException("Not implemented");
+        return isInCheckmate(teamColor);
     }
 
     /**
