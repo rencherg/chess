@@ -21,12 +21,14 @@ public class ChessGame {
     private ChessGame.TeamColor color;
     private ChessMove lastMove;
     private ChessPiece lastMoveDestinationPiece;
+//    private Boolean lastMovePromotion;
 
     public ChessGame() {
 
         board = new ChessBoard();
         board.resetBoard();
         color = TeamColor.WHITE;
+//        this.lastMovePromotion = false;
 
     }
 
@@ -56,7 +58,12 @@ public class ChessGame {
 
     private void undoMove(){
 
-        this.board.addPiece(this.lastMove.getStartPosition(), this.board.getPiece(this.lastMove.getEndPosition()));
+        if(this.lastMove.getPromotionPiece() != null){
+            this.board.addPiece(this.lastMove.getStartPosition(), new ChessPiece(this.color, ChessPiece.PieceType.PAWN));
+        }else{
+            this.board.addPiece(this.lastMove.getStartPosition(), this.board.getPiece(this.lastMove.getEndPosition()));
+        }
+
         this.board.addPiece(this.lastMove.getEndPosition(), this.lastMoveDestinationPiece);
 
         this.lastMove = null;
@@ -64,21 +71,26 @@ public class ChessGame {
         this.switchTurn();
     }
 
+    //Makes move without any checking
     private void executeMove(ChessMove move){
         this.lastMoveDestinationPiece = this.board.getPiece(move.getEndPosition());
-        this.board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        if(move.getPromotionPiece() != null){
+            this.board.addPiece(move.getEndPosition(), new ChessPiece(this.color,move.getPromotionPiece()));
+        }else{
+            this.board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        }
         this.board.addPiece(move.getStartPosition(), null);
         this.lastMove = move;
         this.switchTurn();
     }
 
     private void switchTurn(){
-        System.out.println("Switch turn");
+//        System.out.println("Switch turn");
         if (this.color == TeamColor.BLACK){
-            System.out.println("Switch turn to white");
+//            System.out.println("Switch turn to white");
             this.color = TeamColor.WHITE;
         }else{
-            System.out.println("Switch turn to black");
+//            System.out.println("Switch turn to black");
             this.color = TeamColor.BLACK;
         }
     }
@@ -157,7 +169,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        System.out.println(this.color);
+//        System.out.println(this.color);
 
         //How to do this function -
         //1. How does chess move work with whose color it is?
@@ -177,9 +189,9 @@ public class ChessGame {
 
 //        System.out.println(selectedPiece.getTeamColor());
 //        System.out.println(selectedPiece.getPieceType());
-        System.out.println(this.passInt);
-        System.out.println(this.board.toString());
-        System.out.println("First part");
+//        System.out.println(this.passInt);
+//        System.out.println(this.board.toString());
+//        System.out.println("First part");
 //        System.out.println(this.board.getPiece(new ChessPosition(7, 8)));
 //        System.out.println(this.board.getPiece(startPosition));
 //        System.out.println(this.board.getPiece(new ChessPosition(8, 7)));
@@ -194,16 +206,16 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        System.out.println("We are here");
+//        System.out.println("We are here");
 
 //        System.out.println(startPosition.getRow());
 
 //        System.out.println("We are here");
 //        System.out.println("We are here");
-        System.out.println(startPosition);
-        System.out.println(board.getPiece(startPosition).getTeamColor());
-        System.out.println(this.color);
-        System.out.println(board.getPiece(startPosition).getPieceType());
+//        System.out.println(startPosition);
+//        System.out.println(board.getPiece(startPosition).getTeamColor());
+//        System.out.println(this.color);
+//        System.out.println(board.getPiece(startPosition).getPieceType());
 
         Collection<ChessMove> validMoves = this.validMoves(startPosition);
 
@@ -217,16 +229,16 @@ public class ChessGame {
             currentMove = iterator.next();
 //            System.out.println(currentMove.getEndPosition().getRow() + " " + currentMove.getEndPosition().getColumn());
             if((currentMove.getEndPosition().getRow() == endPosition.getRow()) && (currentMove.getEndPosition().getColumn() == endPosition.getColumn())){
-                System.out.println("Inside Iteration");
+//                System.out.println("Inside Iteration");
                 foundMove = true;
                 this.executeMove(move);
                 break;
             }
         }
 
-        System.out.println(this.passInt);
-        System.out.println(this.board.toString());
-        System.out.println("Last part");
+//        System.out.println(this.passInt);
+//        System.out.println(this.board.toString());
+//        System.out.println("Last part");
 
         //Throw error if there is a null or move is invalid there
         if(!foundMove){
@@ -284,11 +296,11 @@ public class ChessGame {
 
         ChessPosition kingPosition = findKing(teamColor);
 
-        System.out.println(teamColor);
+//        System.out.println(teamColor);
 
         if(kingPosition == null) {
 
-            System.out.println("King Position is null");
+//            System.out.println("King Position is null");
         }
 
         for(int i = 1; i < 9; i++){
