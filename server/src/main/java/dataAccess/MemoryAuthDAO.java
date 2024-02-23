@@ -45,6 +45,21 @@ public class MemoryAuthDAO implements AuthDAO{
 
     public boolean deleteAuth(String authToken){
 
+        Iterator<AuthData> dataIterator = authSet.iterator();
+
+        AuthData iteratorData;
+
+        while (dataIterator.hasNext()) {
+
+            iteratorData = dataIterator.next();
+
+            if(iteratorData.getAuthToken() == authToken){
+                this.authSet.remove(iteratorData);
+                return true;
+            }
+        }
+        return false;
+
     }
 
     public AuthData getAuth(String authToken){
@@ -57,7 +72,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
             iteratorData = dataIterator.next();
 
-            if(iteratorData.getUsername() == authToken){
+            if(iteratorData.getAuthToken() == authToken){
                 return iteratorData;
             }
         }
