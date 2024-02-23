@@ -1,4 +1,4 @@
-package server.models;
+package server.model;
 
 public class UserData {
     private String username;
