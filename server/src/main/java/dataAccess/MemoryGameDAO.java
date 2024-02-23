@@ -25,7 +25,7 @@ public class MemoryGameDAO implements GameDAO {
         boolean foundValidToken = false;
 
         while(foundValidToken == false){
-            id = ThreadLocalRandom.current().nextInt(1000, 10000)
+            id = ThreadLocalRandom.current().nextInt(1000, 10000);
             if(this.getGame(id) == null){
                 foundValidToken = true;
             }
