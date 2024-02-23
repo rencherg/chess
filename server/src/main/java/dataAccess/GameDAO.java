@@ -1,7 +1,7 @@
 package dataAccess;
 
 import chess.ChessGame;
-import server.model.GameData;
+import model.GameData;
 
 public interface GameDAO {
 

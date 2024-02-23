@@ -1,6 +1,6 @@
 package dataAccess;
 
-import server.model.UserData;
+import model.UserData;
 
 public interface UserDAO {
 

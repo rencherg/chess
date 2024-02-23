@@ -1,10 +1,8 @@
 package dataAccess;
 
 import chess.ChessGame;
-import server.model.AuthData;
-import server.model.GameData;
+import model.GameData;
 
-import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;

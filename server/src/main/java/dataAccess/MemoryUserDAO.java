@@ -1,6 +1,6 @@
 package dataAccess;
 
-import server.model.UserData;
+import model.UserData;
 
 import java.util.HashSet;
 import java.util.Iterator;

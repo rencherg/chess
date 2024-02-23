@@ -7,11 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import passoffTests.obfuscatedTestClasses.TestServerFacade;
-import passoffTests.testClasses.TestModels;
-import server.Server;
-import server.model.AuthData;
-import server.model.UserData;
+import model.AuthData;
+import model.UserData;
 
 public class DAOTests {
 
