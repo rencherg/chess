@@ -10,13 +10,14 @@ public class UserService {
     private MemoryUserDAO memoryUserDAO;
     private MemoryAuthDAO memoryAuthDAO;
 
-    public UserService(MemoryUserDAO memoryUserDAO) {
-        this.memoryUserDAO = memoryUserDAO;
+    public UserService() {
+        this.memoryUserDAO = new MemoryUserDAO();
+        this.memoryAuthDAO = new MemoryAuthDAO();
     }
 
     //checks of not bland
     private boolean checkInfo(String data){
-        return(data != "");
+        return((data != "") && (data != null));
     }
 
     public String register(String username, String password, String email){

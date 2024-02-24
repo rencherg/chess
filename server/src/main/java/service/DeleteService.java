@@ -11,7 +11,7 @@ public class DeleteService {
         testDAO = new TestDAO();
     }
 
-    public void clear(){
-        this.testDAO.clearDB();
+    public boolean clear(){
+        return this.testDAO.clearDB();
     }
 }
