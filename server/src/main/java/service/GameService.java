@@ -16,7 +16,7 @@ public class GameService {
     private MemoryUserDAO memoryUserDAO;
 
     private boolean checkInfo(String data){
-        return((data != "") && (data != null));
+        return((data != "") && (data != null) && (data.length() > 0));
     }
 
     public GameService() {
@@ -64,12 +64,12 @@ public class GameService {
 
     //EVERYTHING BELOW SHOULD BE DELETED WHEN THE DB IS IMPLEMENTED
 
-    public String register(String username, String password, String email){
+    public AuthData register(String username, String password, String email){
         if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
             UserData newUser = new UserData(username, password, email);
             this.memoryUserDAO.createUser(newUser);
-            AuthData authData = this.memoryAuthDAO.createAuth(username);
-            return authData.getAuthToken();
+            return this.memoryAuthDAO.createAuth(username);
+//            return authData.getAuthToken();
         }else{
             return null;
         }

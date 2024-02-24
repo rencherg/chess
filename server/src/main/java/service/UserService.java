@@ -17,15 +17,21 @@ public class UserService {
 
     //checks of not bland
     private boolean checkInfo(String data){
-        return((data != "") && (data != null));
+        return((data != "") && (data != null) && (data.length() > 0));
     }
 
-    public String register(String username, String password, String email){
+    public AuthData register(String username, String password, String email){
+//        System.out.println("Username: \"" + username + "\"");
+//        System.out.println(checkInfo(username));
+//        System.out.println((username != ""));
+//        System.out.println((username == ""));
+//        System.out.println("d"+username+"d");
+//        System.out.println(username.length());
         if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
             UserData newUser = new UserData(username, password, email);
             this.memoryUserDAO.createUser(newUser);
-            AuthData authData = this.memoryAuthDAO.createAuth(username);
-            return authData.getAuthToken();
+            return this.memoryAuthDAO.createAuth(username);
+//            return authData.getAuthToken();
         }else{
             return null;
         }
