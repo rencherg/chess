@@ -42,7 +42,7 @@ public class DAOTests {
         UserData myUser1 = new UserData("rencherg", "password", "rencher.grant@gmail.com");
         UserData myUser2 = new UserData("fmulder", "TrustNo1", "f.mulder@gmail.com");
 
-        AuthData myAuthData = this.memoryAuthDAO.createAuth(myUser1);
+        AuthData myAuthData = this.memoryAuthDAO.createAuth("rencherg");
 
         Assertions.assertEquals(this.memoryAuthDAO.getAuth(myAuthData.getAuthToken()), myAuthData);
         Assertions.assertNull(this.memoryAuthDAO.getAuth("sample"));

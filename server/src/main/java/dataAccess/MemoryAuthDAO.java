@@ -36,9 +36,9 @@ public class MemoryAuthDAO implements AuthDAO{
         return token;
     }
 
-    public AuthData createAuth(UserData userData){
+    public AuthData createAuth(String username){
 
-        AuthData authData = new AuthData(this.getUniqueToken(), userData.getUsername());
+        AuthData authData = new AuthData(this.getUniqueToken(), username);
         this.authSet.add(authData);
         return authData;
     }
@@ -73,6 +73,24 @@ public class MemoryAuthDAO implements AuthDAO{
             iteratorData = dataIterator.next();
 
             if(iteratorData.getAuthToken() == authToken){
+                return iteratorData;
+            }
+        }
+        return null;
+
+    }
+
+    public AuthData getAuthUsername(String username){
+
+        Iterator<AuthData> dataIterator = authSet.iterator();
+
+        AuthData iteratorData;
+
+        while (dataIterator.hasNext()) {
+
+            iteratorData = dataIterator.next();
+
+            if(iteratorData.getUsername() == username){
                 return iteratorData;
             }
         }
