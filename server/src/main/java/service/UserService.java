@@ -20,20 +20,16 @@ public class UserService {
         return((data != "") && (data != null) && (data.length() > 0));
     }
 
-    public AuthData register(String username, String password, String email){
-//        System.out.println("Username: \"" + username + "\"");
-//        System.out.println(checkInfo(username));
-//        System.out.println((username != ""));
-//        System.out.println((username == ""));
-//        System.out.println("d"+username+"d");
-//        System.out.println(username.length());
-        if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
-            UserData newUser = new UserData(username, password, email);
+    public AuthData register(UserData userData) throws RuntimeException{
+        if(memoryUserDAO.getUser(userData.getUsername()) != null){
+            System.out.println("In here");
+            throw new RuntimeException("Error: already taken");
+        } else if(checkInfo(userData.getUsername()) && checkInfo(userData.getUsername()) && checkInfo(userData.getEmail()) && (this.memoryUserDAO.getUser(userData.getUsername())==null)){
+            UserData newUser = new UserData(userData.getUsername(), userData.getPassword(), userData.getEmail());
             this.memoryUserDAO.createUser(newUser);
-            return this.memoryAuthDAO.createAuth(username);
-//            return authData.getAuthToken();
+            return this.memoryAuthDAO.createAuth(userData.getUsername());
         }else{
-            return null;
+            throw new RuntimeException("Error: bad request");
         }
     }
 

@@ -5,6 +5,7 @@ import chess.ChessGame;
 import dataAccess.AuthDAO;
 import model.AuthData;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import service.DeleteService;
 import service.GameService;
@@ -32,21 +33,21 @@ public class ServiceTests {
     @Order(2)
     @DisplayName("register positive")
     public void registerTestPositive() throws Exception {
-        Assertions.assertNotNull(this.userService.register("rencherg", "password", "rencher.grant@gmail.com"));
+        Assertions.assertNotNull(this.userService.register(new UserData("rencherg", "password", "rencher.grant@gmail.com")));
     }
 
     @Test
     @Order(3)
     @DisplayName("register negative")
     public void registerTestNegative() throws Exception {
-        Assertions.assertNull(this.userService.register("", "", ""));
+        Assertions.assertNull(this.userService.register(new UserData("", "", "")));
     }
 
     @Test
     @Order(4)
     @DisplayName("login positive")
     public void loginTestPositive() throws Exception {
-        AuthData authData = this.userService.register("fmulder", "trustno1", "f.mulder@fbi.gov");
+        AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
         Assertions.assertNotNull(this.userService.login("fmulder", "trustno1"));
     }
@@ -55,9 +56,9 @@ public class ServiceTests {
     @Order(5)
     @DisplayName("login negative")
     public void loginTestNegative() throws Exception {
-        AuthData authData = this.userService.register("fmulder", "trustno1", "f.mulder@fbi.gov");
+        AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
-        authData = this.userService.register("rencherg", "password", "f.mulder@fbi.gov");
+        authData = this.userService.register(new UserData("rencherg", "password", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
         Assertions.assertNull(this.userService.login("rencherg", "sample"));
     }
@@ -66,7 +67,7 @@ public class ServiceTests {
     @Order(6)
     @DisplayName("logout positive")
     public void logoutTestPositive() throws Exception {
-        AuthData authData = this.userService.register("fmulder", "trustno1", "f.mulder@fbi.gov");
+        AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         Assertions.assertTrue(this.userService.logout(authData.getAuthToken()));
     }
 
@@ -74,7 +75,7 @@ public class ServiceTests {
     @Order(7)
     @DisplayName("logout negative")
     public void logoutTestNegative() throws Exception {
-        AuthData authData = this.userService.register("fmulder", "trustno1", "f.mulder@fbi.gov");
+        AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         Assertions.assertFalse(this.userService.logout("sample token"));
     }
 

@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class MemoryUserDAO implements UserDAO {
 
-    Set<UserData> userSet = new HashSet();
+//    Set<UserData> userSet = new HashSet();
 
     public MemoryUserDAO(){
 
@@ -16,7 +16,7 @@ public class MemoryUserDAO implements UserDAO {
 
     //Checks if a user exists with the given username
     public UserData getUser(String username){
-        Iterator<UserData> dataIterator = userSet.iterator();
+        Iterator<UserData> dataIterator = TempDB.userSet.iterator();
 
         UserData iteratorData;
 
@@ -24,7 +24,7 @@ public class MemoryUserDAO implements UserDAO {
 
             iteratorData = dataIterator.next();
 
-            if(iteratorData.getUsername() == username){
+            if(iteratorData.getUsername().equals(username)){
                 return iteratorData;
             }
         }
@@ -33,7 +33,7 @@ public class MemoryUserDAO implements UserDAO {
 
     //Checks if username and password are correct
     public UserData checkUserData(String username, String password){
-        Iterator<UserData> dataIterator = userSet.iterator();
+        Iterator<UserData> dataIterator = TempDB.userSet.iterator();
 
         UserData iteratorData;
 
@@ -50,7 +50,15 @@ public class MemoryUserDAO implements UserDAO {
 
     public UserData createUser(UserData user){
 
-        this.userSet.add(user);
+        TempDB.userSet.add(user);
+
+        Iterator<UserData> iterator = TempDB.userSet.iterator();
+
+        System.out.println("All entries:");
+        while(iterator.hasNext()){
+            System.out.println(iterator.next().getUsername());
+        }
+        System.out.println("end");
 
         return user;
     }
