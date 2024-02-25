@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    Set<AuthData> authSet = new HashSet();
+//    Set<AuthData> authSet = new HashSet();
 
     public MemoryAuthDAO() {
 
@@ -39,13 +39,13 @@ public class MemoryAuthDAO implements AuthDAO{
     public AuthData createAuth(String username){
 
         AuthData authData = new AuthData(this.getUniqueToken(), username);
-        this.authSet.add(authData);
+        TempDB.authSet.add(authData);
         return authData;
     }
 
     public boolean deleteAuth(String authToken){
 
-        Iterator<AuthData> dataIterator = authSet.iterator();
+        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
 
         AuthData iteratorData;
 
@@ -53,8 +53,8 @@ public class MemoryAuthDAO implements AuthDAO{
 
             iteratorData = dataIterator.next();
 
-            if(iteratorData.getAuthToken() == authToken){
-                this.authSet.remove(iteratorData);
+            if(iteratorData.getAuthToken().equals(authToken)){
+                TempDB.authSet.remove(iteratorData);
                 return true;
             }
         }
@@ -64,7 +64,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
     public AuthData getAuth(String authToken){
 
-        Iterator<AuthData> dataIterator = authSet.iterator();
+        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
 
         AuthData iteratorData;
 
@@ -82,7 +82,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
     public AuthData getAuthUsername(String username){
 
-        Iterator<AuthData> dataIterator = authSet.iterator();
+        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
 
         AuthData iteratorData;
 

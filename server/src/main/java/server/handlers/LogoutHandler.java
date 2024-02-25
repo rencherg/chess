@@ -11,7 +11,7 @@ import spark.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginHandler {
+public class LogoutHandler {
 
     private UserService userService = new UserService();
     private Gson gson = new Gson();
@@ -23,19 +23,14 @@ public class LoginHandler {
 
         try{
 
-            JsonObject jobj = gson.fromJson(req.body(), JsonObject.class);
-            String username = jobj.get("username").getAsString();
-            String password = jobj.get("password").getAsString();
+            String authToken = req.headers("authorization");
 
-            AuthData authData = this.userService.login(username, password);
+            System.out.println(authToken);
 
-            if(authData != null){
+            boolean successfulLogout = this.userService.logout(authToken);
+
+            if(successfulLogout){
                 res.status(200);
-                responseMap.put("authToken", authData.getAuthToken());
-                responseMap.put("username", authData.getUsername());
-            }else{
-                res.status(400);
-                responseMap.put("message", "Error: bad request");
             }
         }
         catch (RuntimeException exception){
@@ -51,7 +46,13 @@ public class LoginHandler {
             }
         }
 
+//        if(!responseMap.isEmpty()){
+//            gsonString = gson.toJson(responseMap);
+//        }else{
+//            gsonString = "{}";
+//        }
         gsonString = gson.toJson(responseMap);
+
         return gsonString;
 
     }

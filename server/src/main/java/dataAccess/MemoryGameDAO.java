@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MemoryGameDAO implements GameDAO {
 
-    Set<GameData> gameSet = new HashSet();
+//    Set<GameData> gameSet = new HashSet();
 
     public MemoryGameDAO(){
 
@@ -34,13 +34,13 @@ public class MemoryGameDAO implements GameDAO {
 
     public GameData createGame(ChessGame game, String blackUsername, String whiteUsername, String gameName){
         GameData gameData = new GameData(this.getUniqueID(), blackUsername, whiteUsername, gameName, game);
-        this.gameSet.add(gameData);
+        TempDB.gameSet.add(gameData);
         return gameData;
     }
 
     public GameData getGame(int gameID){
 
-        Iterator<GameData> dataIterator = gameSet.iterator();
+        Iterator<GameData> dataIterator = TempDB.gameSet.iterator();
 
         GameData iteratorData;
 
@@ -57,10 +57,10 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public GameData[] listGames(){
-        GameData gameDataArray[] = new GameData[this.gameSet.size()];
+        GameData gameDataArray[] = new GameData[TempDB.gameSet.size()];
 
         int i = 0;
-        for (GameData game : this.gameSet)
+        for (GameData game : TempDB.gameSet)
             gameDataArray[i++] = game;
 
         return gameDataArray;

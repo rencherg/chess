@@ -33,17 +33,24 @@ public class UserService {
         }
     }
 
-    public String login(String username, String password){
-        if(checkInfo(username) && checkInfo(password) && (this.memoryUserDAO.checkUserData(username, password) != null) && (this.memoryAuthDAO.getAuthUsername(username) == null)){
-            AuthData authData = this.memoryAuthDAO.createAuth(username);
-            return authData.getAuthToken();
+    public AuthData login(String username, String password){
+        if ((this.memoryUserDAO.checkUserData(username, password) != null)) {
+            throw new RuntimeException("Error: unauthorized");
+        } else if(checkInfo(username) && checkInfo(password)){// && (this.memoryAuthDAO.getAuthUsername(username) == null) This part may need to be included to prevent a user from logging in again
+            return this.memoryAuthDAO.createAuth(username);
         }else{
-            return null;
+            throw new RuntimeException("Error: bad request");
         }
     }
 
     public boolean logout(String authToken){
-        return this.memoryAuthDAO.deleteAuth(authToken);
+        System.out.println("outside");
+        if(this.memoryAuthDAO.deleteAuth(authToken)){
+            System.out.println("Hello");
+            return true;
+        }else{
+            throw new RuntimeException("Error: unauthorized");
+        }
     }
 
 }
