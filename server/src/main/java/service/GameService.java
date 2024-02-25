@@ -64,27 +64,27 @@ public class GameService {
 
     //EVERYTHING BELOW SHOULD BE DELETED WHEN THE DB IS IMPLEMENTED
 
-    public AuthData register(String username, String password, String email){
-        if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
-            UserData newUser = new UserData(username, password, email);
-            this.memoryUserDAO.createUser(newUser);
-            return this.memoryAuthDAO.createAuth(username);
+//    public AuthData register(String username, String password, String email){
+//        if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
+//            UserData newUser = new UserData(username, password, email);
+//            this.memoryUserDAO.createUser(newUser);
+//            return this.memoryAuthDAO.createAuth(username);
+////            return authData.getAuthToken();
+//        }else{
+//            return null;
+//        }
+//    }
+//
+//    public String login(String username, String password){
+//        if(checkInfo(username) && checkInfo(password) && (this.memoryUserDAO.checkUserData(username, password) != null) && (this.memoryAuthDAO.getAuthUsername(username) == null)){
+//            AuthData authData = this.memoryAuthDAO.createAuth(username);
 //            return authData.getAuthToken();
-        }else{
-            return null;
-        }
-    }
-
-    public String login(String username, String password){
-        if(checkInfo(username) && checkInfo(password) && (this.memoryUserDAO.checkUserData(username, password) != null) && (this.memoryAuthDAO.getAuthUsername(username) == null)){
-            AuthData authData = this.memoryAuthDAO.createAuth(username);
-            return authData.getAuthToken();
-        }else{
-            return null;
-        }
-    }
-
-    public boolean logout(String authToken){
-        return this.memoryAuthDAO.deleteAuth(authToken);
-    }
+//        }else{
+//            return null;
+//        }
+//    }
+//
+//    public boolean logout(String authToken){
+//        return this.memoryAuthDAO.deleteAuth(authToken);
+//    }
 }

@@ -1,11 +1,18 @@
 package server;
 
+import server.handlers.DeleteHandler;
 import server.handlers.LoginHandler;
 import server.handlers.LogoutHandler;
 import server.handlers.RegisterHandler;
 import spark.*;
 
 public class Server {
+
+    //TODO:
+    //1 Fix bugs in service classes(There may be a security vulnerability)
+    //2 Make handlers Inherit
+    //3 Game Endpoints
+    //4 Clean up code
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -30,7 +37,9 @@ public class Server {
 
         Spark.put("/game", (req, res)->"Put Game");
 
-        Spark.delete("/db", (req, res)->"DB");
+        Spark.delete("/db", (req, res)->
+                (new DeleteHandler()).handleRequest(req,
+                        res));
 
         Spark.get("/hello", (req,res)->"Hello World Grant");
 

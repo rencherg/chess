@@ -6,7 +6,9 @@ public class TestDAO {
 
     public boolean clearDB(){
 
-        System.out.println("Clear the DB");
+        TempDB.gameSet.clear();
+        TempDB.userSet.clear();
+        TempDB.authSet.clear();
         return true;
     }
 }
