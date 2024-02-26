@@ -5,11 +5,7 @@ import dataAccess.TestDAO;
 //FOR TESTING ONLY
 public class DeleteService {
 
-    private TestDAO testDAO;
-
-    public DeleteService() {
-        testDAO = new TestDAO();
-    }
+    private final TestDAO testDAO = new TestDAO();
 
     public boolean clear(){
         return this.testDAO.clearDB();

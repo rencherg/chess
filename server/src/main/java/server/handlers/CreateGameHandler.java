@@ -1,7 +1,6 @@
 package server.handlers;
 
 import com.google.gson.JsonObject;
-import model.GameData;
 import spark.Request;
 import spark.Response;
 
@@ -10,11 +9,11 @@ import java.util.Map;
 
 public class CreateGameHandler extends ParentHandler{
 
-    private Map<String, Integer> gameResponseMap = new HashMap<>();
+    private final Map<String, Integer> gameResponseMap = new HashMap<>();
 
     public String handleRequest(Request req, Response res) {
 
-        String gsonString = "";
+        String gsonString;
 
         try{
 

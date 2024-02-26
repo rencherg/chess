@@ -1,7 +1,6 @@
 package passoffTests.DAOTests;
 
 import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import model.AuthData;
 import model.UserData;
 
+//For testing the DAO classes
 public class DAOTests {
 
-    private MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    private MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-    private MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    private final MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    private final MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
 
     @BeforeAll
     public static void init() {
@@ -39,8 +38,6 @@ public class DAOTests {
     @Test
     @Order(2)
     public void authDAOTest(){
-        UserData myUser1 = new UserData("rencherg", "password", "rencher.grant@gmail.com");
-        UserData myUser2 = new UserData("fmulder", "TrustNo1", "f.mulder@gmail.com");
 
         AuthData myAuthData = this.memoryAuthDAO.createAuth("rencherg");
 

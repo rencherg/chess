@@ -9,6 +9,7 @@ import spark.Response;
 import java.util.HashMap;
 import java.util.Map;
 
+//The 4 variables and the parse exception method below are used by all child classes
 abstract public class ParentHandler {
     protected UserService userService = new UserService();
     protected GameService gameService = new GameService();

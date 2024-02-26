@@ -3,14 +3,10 @@ package dataAccess;
 import chess.ChessGame;
 import model.GameData;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MemoryGameDAO implements GameDAO {
-
-//    Set<GameData> gameSet = new HashSet();
 
     public MemoryGameDAO(){
 

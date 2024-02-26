@@ -1,16 +1,16 @@
 package dataAccess;
 
 import model.AuthData;
-import model.UserData;
 
+//Auth Dao
 public interface AuthDAO {
 
-    public AuthData createAuth(String username);
+    AuthData createAuth(String username);
 
-    public boolean deleteAuth(String authToken);
+    boolean deleteAuth(String authToken);
 
-    public AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken);
 
-    public AuthData getAuthUsername(String username);
+//    AuthData getAuthUsername(String username);
 
 }

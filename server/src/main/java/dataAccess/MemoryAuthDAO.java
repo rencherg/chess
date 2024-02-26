@@ -1,22 +1,18 @@
 package dataAccess;
 
 import model.AuthData;
-import model.UserData;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import java.security.SecureRandom;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-//    Set<AuthData> authSet = new HashSet();
-
     public MemoryAuthDAO() {
 
     }
 
+    //Generates a unique token
     private String getUniqueToken(){
 
         SecureRandom random = new SecureRandom();
@@ -80,22 +76,22 @@ public class MemoryAuthDAO implements AuthDAO{
 
     }
 
-    public AuthData getAuthUsername(String username){
-
-        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
-
-        AuthData iteratorData;
-
-        while (dataIterator.hasNext()) {
-
-            iteratorData = dataIterator.next();
-
-            if(iteratorData.getUsername().equals(username)){
-                return iteratorData;
-            }
-        }
-        return null;
-
-    }
+//    public AuthData getAuthUsername(String username){
+//
+//        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
+//
+//        AuthData iteratorData;
+//
+//        while (dataIterator.hasNext()) {
+//
+//            iteratorData = dataIterator.next();
+//
+//            if(iteratorData.getUsername().equals(username)){
+//                return iteratorData;
+//            }
+//        }
+//        return null;
+//
+//    }
 
 }

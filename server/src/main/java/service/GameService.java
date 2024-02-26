@@ -6,14 +6,10 @@ import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
 
 public class GameService {
-    private MemoryGameDAO memoryGameDAO;
-    private MemoryAuthDAO memoryAuthDAO;
-
-    //Delete when db is implemented
-    private MemoryUserDAO memoryUserDAO;
+    private final MemoryGameDAO memoryGameDAO;
+    private final MemoryAuthDAO memoryAuthDAO;
 
     private boolean checkInfo(String data){
         return((data != "") && (data != null) && (data.length() > 0));
@@ -22,7 +18,6 @@ public class GameService {
     public GameService() {
         this.memoryGameDAO = new MemoryGameDAO();
         this.memoryAuthDAO = new MemoryAuthDAO();
-        this.memoryUserDAO = new MemoryUserDAO();
     }
 
     public GameData[] getGame(String authToken) throws RuntimeException{
@@ -52,12 +47,10 @@ public class GameService {
         } else if(gameData == null) {
             throw new RuntimeException("Error: bad request");
         }else if(clientColor == null){
-            //This part may need to change.
             return true;
         }else if(((clientColor.equals("BLACK")) && (gameData.getBlackUsername()!=null) || ((clientColor.equals("WHITE")) && (gameData.getWhiteUsername()!=null)))){
             throw new RuntimeException("Error: already taken");
         }else{
-            //Potential bug if a user has already joined and another tries to join as the same color
             if(clientColor.equals("WHITE") && gameData.getWhiteUsername()==null){
                 gameData.setWhiteUsername(userAuthData.getUsername());
                 return true;

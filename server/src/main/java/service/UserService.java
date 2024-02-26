@@ -7,17 +7,17 @@ import model.UserData;
 
 public class UserService {
 
-    private MemoryUserDAO memoryUserDAO;
-    private MemoryAuthDAO memoryAuthDAO;
+    private final MemoryUserDAO memoryUserDAO;
+    private final MemoryAuthDAO memoryAuthDAO;
 
     public UserService() {
         this.memoryUserDAO = new MemoryUserDAO();
         this.memoryAuthDAO = new MemoryAuthDAO();
     }
 
-    //checks of not bland
+    //checks if not null or empty
     private boolean checkInfo(String data){
-        return((!data.equals("")) && (!data.equals(null)) && (data.length() > 0));
+        return((!data.equals("")) && (data.length() > 0));
     }
 
     public AuthData register(UserData userData) throws RuntimeException{

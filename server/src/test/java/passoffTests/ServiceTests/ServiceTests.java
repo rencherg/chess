@@ -1,8 +1,6 @@
 package passoffTests.ServiceTests;
 
 //Non HTTP Service tests go here
-import chess.ChessGame;
-import dataAccess.AuthDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -11,35 +9,35 @@ import service.DeleteService;
 import service.GameService;
 import service.UserService;
 
-import java.net.HttpURLConnection;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
 
-    private DeleteService deleteService = new DeleteService();
-    private GameService gameService = new GameService();
-    private UserService userService = new UserService();
+    private final DeleteService deleteService = new DeleteService();
+    private final GameService gameService = new GameService();
+    private final UserService userService = new UserService();
 
+    //Only 1 test for delete endpoint
     @Test
     @Order(1)
     @DisplayName("Delete positive")
-    public void deleteTest() throws Exception {
+    public void deleteTest() {
         Assertions.assertTrue(this.deleteService.clear());
     }
 
     @Test
     @Order(2)
     @DisplayName("register positive")
-    public void registerTestPositive() throws Exception {
+    public void registerTestPositive() {
         Assertions.assertNotNull(this.userService.register(new UserData("cougarboy123", "password", "rencher.grant@gmail.com")));
     }
 
     @Test
     @Order(3)
     @DisplayName("register negative")
-    public void registerTestNegative() throws Exception {
+    public void registerTestNegative() {
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            //Invalid information passed
             this.userService.register(new UserData("", "", ""));
         });
 
@@ -50,7 +48,7 @@ public class ServiceTests {
     @Test
     @Order(4)
     @DisplayName("login positive")
-    public void loginTestPositive() throws Exception {
+    public void loginTestPositive() {
         AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
         Assertions.assertNotNull(this.userService.login("fmulder", "trustno1"));
@@ -59,7 +57,7 @@ public class ServiceTests {
     @Test
     @Order(5)
     @DisplayName("login negative")
-    public void loginTestNegative() throws Exception {
+    public void loginTestNegative() {
 
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
             this.userService.login("never used", "neverused");
@@ -72,7 +70,7 @@ public class ServiceTests {
     @Test
     @Order(6)
     @DisplayName("logout positive")
-    public void logoutTestPositive() throws Exception {
+    public void logoutTestPositive() {
         AuthData authData = this.userService.register(new UserData("wskinner", "trustno1", "f.mulder@fbi.gov"));
         Assertions.assertTrue(this.userService.logout(authData.getAuthToken()));
     }
@@ -80,9 +78,9 @@ public class ServiceTests {
     @Test
     @Order(7)
     @DisplayName("logout negative")
-    public void logoutTestNegative() throws Exception {
-        AuthData authData = this.userService.register(new UserData("dreadpirateroberts", "trustno1", "f.mulder@fbi.gov"));
-        ;
+    public void logoutTestNegative() {
+        this.userService.register(new UserData("dreadpirateroberts", "trustno1", "f.mulder@fbi.gov"));
+
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
             Assertions.assertFalse(this.userService.logout("invalid token"));
         });
@@ -95,16 +93,16 @@ public class ServiceTests {
     @Test
     @Order(8)
     @DisplayName("createGame positive")
-    public void createGamePositive() throws Exception {
+    public void createGamePositive() {
         AuthData authData = this.userService.register(new UserData("johnpauljones", "trustno1", "f.mulder@fbi.gov"));
         int id = this.gameService.createGame(authData.getAuthToken(), "my game");
-        Assertions.assertNotEquals(-1, id);
+        Assertions.assertNotNull(id);
     }
 
     @Test
     @Order(9)
     @DisplayName("createGame negative")
-    public void createGameNegative() throws Exception {
+    public void createGameNegative() {
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
             this.gameService.createGame("invalid token", "my game");
         });
@@ -116,7 +114,7 @@ public class ServiceTests {
     @Test
     @Order(10)
     @DisplayName("joinGame positive")
-    public void joinGamePositive() throws Exception {
+    public void joinGamePositive(){
         AuthData authData = this.userService.register(new UserData("akrycek", "trustno1", "f.mulder@fbi.gov"));
         int id = this.gameService.createGame(authData.getAuthToken(), "my game");
         Assertions.assertNotNull(this.gameService.joinGame(authData.getAuthToken(), "WHITE", id));
@@ -125,7 +123,7 @@ public class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("joinGame negative")
-    public void joinGameNegative() throws Exception {
+    public void joinGameNegative(){
         AuthData authData1 = this.userService.register(new UserData("mlg", "trustno1", "f.mulder@fbi.gov"));
         AuthData authData2 = this.userService.register(new UserData("grantacus_", "password", "rencher.grant@gmail.com"));
         int id = this.gameService.createGame(authData1.getAuthToken(), "my game");
@@ -142,11 +140,11 @@ public class ServiceTests {
     @Test
     @Order(12)
     @DisplayName("getGame positive")
-    public void getGamePositive() throws Exception {
+    public void getGamePositive(){
         AuthData authData = this.userService.register(new UserData("byu", "trustno1", "f.mulder@fbi.gov"));
-        int id1 = this.gameService.createGame(authData.getAuthToken(), "my game 1");
-        int id2 = this.gameService.createGame(authData.getAuthToken(), "my game 2");
-        int id3 = this.gameService.createGame(authData.getAuthToken(), "my game 3");
+        this.gameService.createGame(authData.getAuthToken(), "game1");
+        this.gameService.createGame(authData.getAuthToken(), "game2");
+        this.gameService.createGame(authData.getAuthToken(), "game3");
         GameData[] gameData = this.gameService.getGame(authData.getAuthToken());
         Assertions.assertEquals(3, gameData.length);
     }
@@ -154,7 +152,7 @@ public class ServiceTests {
     @Test
     @Order(13)
     @DisplayName("getGame negative")
-    public void getGameNegative() throws Exception {
+    public void getGameNegative(){
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
             Assertions.assertNull(this.gameService.getGame("invalid token"));
         });
