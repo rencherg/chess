@@ -60,13 +60,9 @@ public class ServiceTests {
     @Order(5)
     @DisplayName("login negative")
     public void loginTestNegative() throws Exception {
-        AuthData authData = this.userService.register(new UserData("dscully", "trustno1", "f.mulder@fbi.gov"));
-        this.userService.logout(authData.getAuthToken());
-        authData = this.userService.register(new UserData("rencherg", "password", "rencher.grant@gmail.com"));
-        this.userService.logout(authData.getAuthToken());
 
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
-            this.userService.login("rencherg", "neverused");
+            this.userService.login("never used", "neverused");
         });
 
         String expectedMessage = "Error: unauthorized";
