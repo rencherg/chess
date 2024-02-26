@@ -2,13 +2,9 @@ package dataAccess;
 
 import model.UserData;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 public class MemoryUserDAO implements UserDAO {
-
-//    Set<UserData> userSet = new HashSet();
 
     public MemoryUserDAO(){
 
@@ -41,7 +37,7 @@ public class MemoryUserDAO implements UserDAO {
 
             iteratorData = dataIterator.next();
 
-            if((iteratorData.getUsername() == username) && (iteratorData.getPassword() == password)){
+            if((iteratorData.getUsername().equals(username)) && (iteratorData.getPassword().equals(password))){
                 return iteratorData;
             }
         }
@@ -51,14 +47,6 @@ public class MemoryUserDAO implements UserDAO {
     public UserData createUser(UserData user){
 
         TempDB.userSet.add(user);
-
-        Iterator<UserData> iterator = TempDB.userSet.iterator();
-
-        System.out.println("All entries:");
-        while(iterator.hasNext()){
-            System.out.println(iterator.next().getUsername());
-        }
-        System.out.println("end");
 
         return user;
     }

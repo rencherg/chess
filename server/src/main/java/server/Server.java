@@ -10,9 +10,8 @@ public class Server {
 
     //TODO:
     //1 Fix bugs in service classes(There may be a security vulnerability)
-    //2 Make handlers Inherit
     //3 Game Endpoints
-    //4 Clean up code
+    //4 Clean up code Get rid of unsused imports
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

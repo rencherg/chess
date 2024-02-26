@@ -13,8 +13,7 @@ import service.UserService;
 
 import java.net.HttpURLConnection;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
 
@@ -33,14 +32,19 @@ public class ServiceTests {
     @Order(2)
     @DisplayName("register positive")
     public void registerTestPositive() throws Exception {
-        Assertions.assertNotNull(this.userService.register(new UserData("rencherg", "password", "rencher.grant@gmail.com")));
+        Assertions.assertNotNull(this.userService.register(new UserData("cougarboy123", "password", "rencher.grant@gmail.com")));
     }
 
     @Test
     @Order(3)
     @DisplayName("register negative")
     public void registerTestNegative() throws Exception {
-        Assertions.assertNull(this.userService.register(new UserData("", "", "")));
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            this.userService.register(new UserData("", "", ""));
+        });
+
+        String expectedMessage = "Error: bad request";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 
     @Test
@@ -58,9 +62,15 @@ public class ServiceTests {
     public void loginTestNegative() throws Exception {
         AuthData authData = this.userService.register(new UserData("dscully", "trustno1", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
-        authData = this.userService.register(new UserData("rencherg", "password", "f.mulder@fbi.gov"));
+        authData = this.userService.register(new UserData("rencherg", "password", "rencher.grant@gmail.com"));
         this.userService.logout(authData.getAuthToken());
-        Assertions.assertNull(this.userService.login("rencherg", "sample"));
+
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            this.userService.login("rencherg", "neverused");
+        });
+
+        String expectedMessage = "Error: unauthorized";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 
     @Test
@@ -76,7 +86,14 @@ public class ServiceTests {
     @DisplayName("logout negative")
     public void logoutTestNegative() throws Exception {
         AuthData authData = this.userService.register(new UserData("dreadpirateroberts", "trustno1", "f.mulder@fbi.gov"));
-        Assertions.assertFalse(this.userService.logout("sample token"));
+        ;
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            Assertions.assertFalse(this.userService.logout("invalid token"));
+        });
+
+        String expectedMessage = "Error: unauthorized";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
+
     }
 
     @Test
@@ -110,7 +127,7 @@ public class ServiceTests {
     @DisplayName("joinGame negative")
     public void joinGameNegative() throws Exception {
         AuthData authData1 = this.userService.register(new UserData("mlg", "trustno1", "f.mulder@fbi.gov"));
-        AuthData authData2 = this.userService.register(new UserData("rencherg", "password", "rencher.grant@gmail.com"));
+        AuthData authData2 = this.userService.register(new UserData("grantacus_", "password", "rencher.grant@gmail.com"));
         int id = this.gameService.createGame(authData1.getAuthToken(), "my game");
         this.gameService.joinGame(authData1.getAuthToken(), ChessGame.TeamColor.WHITE, id);
         Assertions.assertFalse(this.gameService.joinGame(authData2.getAuthToken(), ChessGame.TeamColor.WHITE, id));
