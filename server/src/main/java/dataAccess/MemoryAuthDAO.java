@@ -75,23 +75,4 @@ public class MemoryAuthDAO implements AuthDAO{
         return null;
 
     }
-
-//    public AuthData getAuthUsername(String username){
-//
-//        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
-//
-//        AuthData iteratorData;
-//
-//        while (dataIterator.hasNext()) {
-//
-//            iteratorData = dataIterator.next();
-//
-//            if(iteratorData.getUsername().equals(username)){
-//                return iteratorData;
-//            }
-//        }
-//        return null;
-//
-//    }
-
 }
