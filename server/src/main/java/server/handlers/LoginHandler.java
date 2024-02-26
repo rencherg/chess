@@ -1,15 +1,9 @@
 package server.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import model.AuthData;
-import model.UserData;
-import service.UserService;
 import spark.Request;
 import spark.Response;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginHandler extends ParentHandler {
 

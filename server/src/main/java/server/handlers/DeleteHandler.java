@@ -1,12 +1,8 @@
 package server.handlers;
 
-import com.google.gson.Gson;
 import service.DeleteService;
 import spark.Request;
 import spark.Response;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DeleteHandler extends ParentHandler {
     private DeleteService deleteService = new DeleteService();

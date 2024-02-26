@@ -1,8 +1,7 @@
 package server.handlers;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import model.AuthData;
+import service.GameService;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -12,6 +11,7 @@ import java.util.Map;
 
 abstract public class ParentHandler {
     protected UserService userService = new UserService();
+    protected GameService gameService = new GameService();
     protected Gson gson = new Gson();
     protected Map<String, String> responseMap = new HashMap<>();
 

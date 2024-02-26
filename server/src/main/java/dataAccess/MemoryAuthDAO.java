@@ -72,7 +72,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
             iteratorData = dataIterator.next();
 
-            if(iteratorData.getAuthToken() == authToken){
+            if(iteratorData.getAuthToken().equals(authToken)){
                 return iteratorData;
             }
         }
@@ -90,7 +90,7 @@ public class MemoryAuthDAO implements AuthDAO{
 
             iteratorData = dataIterator.next();
 
-            if(iteratorData.getUsername() == username){
+            if(iteratorData.getUsername().equals(username)){
                 return iteratorData;
             }
         }

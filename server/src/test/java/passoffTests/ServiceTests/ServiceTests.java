@@ -109,8 +109,12 @@ public class ServiceTests {
     @Order(9)
     @DisplayName("createGame negative")
     public void createGameNegative() throws Exception {
-        int id = this.gameService.createGame("invalid token", "my game");
-        Assertions.assertEquals(-1, id);
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            this.gameService.createGame("invalid token", "my game");
+        });
+
+        String expectedMessage = "Error: unauthorized";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 
     @Test
@@ -119,7 +123,7 @@ public class ServiceTests {
     public void joinGamePositive() throws Exception {
         AuthData authData = this.userService.register(new UserData("akrycek", "trustno1", "f.mulder@fbi.gov"));
         int id = this.gameService.createGame(authData.getAuthToken(), "my game");
-        Assertions.assertNotNull(this.gameService.joinGame(authData.getAuthToken(), ChessGame.TeamColor.WHITE, id));
+        Assertions.assertNotNull(this.gameService.joinGame(authData.getAuthToken(), "WHITE", id));
     }
 
     @Test
@@ -129,8 +133,14 @@ public class ServiceTests {
         AuthData authData1 = this.userService.register(new UserData("mlg", "trustno1", "f.mulder@fbi.gov"));
         AuthData authData2 = this.userService.register(new UserData("grantacus_", "password", "rencher.grant@gmail.com"));
         int id = this.gameService.createGame(authData1.getAuthToken(), "my game");
-        this.gameService.joinGame(authData1.getAuthToken(), ChessGame.TeamColor.WHITE, id);
-        Assertions.assertFalse(this.gameService.joinGame(authData2.getAuthToken(), ChessGame.TeamColor.WHITE, id));
+        this.gameService.joinGame(authData1.getAuthToken(), "WHITE", id);
+
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            this.gameService.joinGame(authData2.getAuthToken(), "WHITE", id);
+        });
+
+        String expectedMessage = "Error: already taken";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 
     @Test
@@ -149,8 +159,11 @@ public class ServiceTests {
     @Order(13)
     @DisplayName("getGame negative")
     public void getGameNegative() throws Exception {
-        AuthData authData = this.userService.register(new UserData("cowboy", "trustno1", "f.mulder@fbi.gov"));
-        int id2 = this.gameService.createGame(authData.getAuthToken(), "my game 1");
-        Assertions.assertNull(this.gameService.getGame("invalid token"));
+        Exception thrownException = assertThrows(RuntimeException.class, () -> {
+            Assertions.assertNull(this.gameService.getGame("invalid token"));
+        });
+
+        String expectedMessage = "Error: unauthorized";
+        Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 }

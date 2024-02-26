@@ -25,66 +25,48 @@ public class GameService {
         this.memoryUserDAO = new MemoryUserDAO();
     }
 
-    public GameData[] getGame(String authToken){
+    public GameData[] getGame(String authToken) throws RuntimeException{
         if(this.memoryAuthDAO.getAuth(authToken) != null){
             return this.memoryGameDAO.listGames();
         }else{
-            return null;
+            throw new RuntimeException("Error: unauthorized");
         }
     }
 
     public int createGame(String authToken, String gameName){
-        if((this.checkInfo(gameName)) && this.memoryAuthDAO.getAuth(authToken) != null){
-            GameData newGameData = this.memoryGameDAO.createGame(new ChessGame(), "", "", gameName);
+        if(this.memoryAuthDAO.getAuth(authToken) == null){
+            throw new RuntimeException("Error: unauthorized");
+        }if((this.checkInfo(gameName))){
+            GameData newGameData = this.memoryGameDAO.createGame(new ChessGame(), null, null, gameName);
             return newGameData.getGameID();
         }else{
-            return -1;
+            throw new RuntimeException("Error: bad request");
         }
     }
 
-    public boolean joinGame(String authToken, ChessGame.TeamColor clientColor, int gameID){
+    public boolean joinGame(String authToken, String clientColor, int gameID){
         AuthData userAuthData = this.memoryAuthDAO.getAuth(authToken);
         GameData gameData = this.memoryGameDAO.getGame(gameID);
-        if((userAuthData != null) && (gameData != null)){
-
+        if(userAuthData == null){
+            throw new RuntimeException("Error: unauthorized");
+        } else if(gameData == null) {
+            throw new RuntimeException("Error: bad request");
+        }else if(clientColor == null){
+            //This part may need to change.
+            return true;
+        }else if(((clientColor.equals("BLACK")) && (gameData.getBlackUsername()!=null) || ((clientColor.equals("WHITE")) && (gameData.getWhiteUsername()!=null)))){
+            throw new RuntimeException("Error: already taken");
+        }else{
             //Potential bug if a user has already joined and another tries to join as the same color
-            if(clientColor == ChessGame.TeamColor.WHITE && gameData.getWhiteUsername() == ""){
+            if(clientColor.equals("WHITE") && gameData.getWhiteUsername()==null){
                 gameData.setWhiteUsername(userAuthData.getUsername());
                 return true;
-            } else if(clientColor == ChessGame.TeamColor.BLACK && gameData.getBlackUsername() == ""){
+            } else if(clientColor.equals("BLACK") && gameData.getBlackUsername()==null){
                 gameData.setBlackUsername(userAuthData.getUsername());
                 return true;
             }else{
-                return false;
+                throw new RuntimeException("Error: bad request");
             }
-        }else{
-            return false;
         }
     }
-
-    //EVERYTHING BELOW SHOULD BE DELETED WHEN THE DB IS IMPLEMENTED
-
-//    public AuthData register(String username, String password, String email){
-//        if(checkInfo(username) && checkInfo(password) && checkInfo(email) && (this.memoryUserDAO.getUser(username)==null)){
-//            UserData newUser = new UserData(username, password, email);
-//            this.memoryUserDAO.createUser(newUser);
-//            return this.memoryAuthDAO.createAuth(username);
-////            return authData.getAuthToken();
-//        }else{
-//            return null;
-//        }
-//    }
-//
-//    public String login(String username, String password){
-//        if(checkInfo(username) && checkInfo(password) && (this.memoryUserDAO.checkUserData(username, password) != null) && (this.memoryAuthDAO.getAuthUsername(username) == null)){
-//            AuthData authData = this.memoryAuthDAO.createAuth(username);
-//            return authData.getAuthToken();
-//        }else{
-//            return null;
-//        }
-//    }
-//
-//    public boolean logout(String authToken){
-//        return this.memoryAuthDAO.deleteAuth(authToken);
-//    }
 }

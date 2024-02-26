@@ -1,9 +1,6 @@
 package server;
 
-import server.handlers.DeleteHandler;
-import server.handlers.LoginHandler;
-import server.handlers.LogoutHandler;
-import server.handlers.RegisterHandler;
+import server.handlers.*;
 import spark.*;
 
 public class Server {
@@ -30,18 +27,21 @@ public class Server {
                 (new LogoutHandler()).handleRequest(req,
                 res));
 
-        Spark.post("/game", (req, res)->"Post Game");
+        Spark.post("/game", (req, res)->
+                (new CreateGameHandler()).handleRequest(req,
+                        res));
 
-        Spark.get("/game", (req, res)->"Get Game");
+        Spark.get("/game", (req, res)->
+                (new ListGameHandler()).handleRequest(req,
+                res));
 
-        Spark.put("/game", (req, res)->"Put Game");
+        Spark.put("/game", (req, res)->
+                (new JoinGameHandler()).handleRequest(req,
+                        res));
 
         Spark.delete("/db", (req, res)->
                 (new DeleteHandler()).handleRequest(req,
                         res));
-
-        Spark.get("/hello", (req,res)->"Hello World Grant");
-
 
         Spark.awaitInitialization();
         return Spark.port();
