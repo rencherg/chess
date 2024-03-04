@@ -1,13 +1,17 @@
 package passoffTests.DAOTests;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import model.AuthData;
 import model.UserData;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 //For testing the DAO classes
 public class DAOTests {
@@ -16,8 +20,7 @@ public class DAOTests {
     private final MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
 
     @BeforeAll
-    public static void init() {
-
+    public static void init() throws SQLException, DataAccessException {
     }
 
     @Test
@@ -51,4 +54,32 @@ public class DAOTests {
         Assertions.assertNull(this.memoryAuthDAO.getAuth(myAuthData.getAuthToken()));
 
     }
+
+    @Test
+    public void getUserSQL() throws SQLException, DataAccessException {
+        SQLUserDAO sqlUserDAO = new SQLUserDAO();
+
+        Assertions.assertNull(sqlUserDAO.getUser("badusername"));
+        Assertions.assertNull(sqlUserDAO.checkUserData("badusername", "badpassword"));
+
+        Assertions.assertNotNull(sqlUserDAO.getUser("username"));
+        Assertions.assertNotNull(sqlUserDAO.checkUserData("username", "password"));
+
+    }
+
+//    @Test
+//    @Order(3)
+//    public void SQLUserDAO() throws SQLException, DataAccessException {
+//
+//        SQLUserDAO sqlUserDAO = new SQLUserDAO();
+//
+//        sqlUserDAO().testFunction();
+//
+//        Assertions.assertNull(null);
+
+//    }
+
+//    private SQLUserDAO sqlUserDAO() {
+//        return new SQLUserDAO();
+//    }
 }
