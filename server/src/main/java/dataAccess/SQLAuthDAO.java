@@ -1,8 +1,12 @@
 package dataAccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Iterator;
 
 public class SQLAuthDAO  implements AuthDAO{
@@ -33,9 +37,40 @@ public class SQLAuthDAO  implements AuthDAO{
 
     public AuthData createAuth(String username){
 
-        AuthData authData = new AuthData(this.getUniqueToken(), username);
-        TempDB.authSet.add(authData);
-        return authData;
+        Connection myConnection = null;
+        PreparedStatement myPreparedStatement = null;
+        boolean wasSuccesful;
+
+        UserData foundData = null;
+
+        //Getuserid first
+
+        try {
+
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "INSERT INTO auth_data\n" +
+                    "(\n" +
+                    "    user_id,\n" +
+                    "    username,\n" +
+                    "    token\n" +
+                    ")\n" +
+                    "VALUES\n" +
+                    "(?, ?, ?);";
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            myPreparedStatement.setString(1, user.getUsername());
+            myPreparedStatement.setString(2, user.getPassword());
+            myPreparedStatement.setString(3, user.getEmail());
+            wasSuccesful = myPreparedStatement.execute();
+
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+        } finally{
+
+            myPreparedStatement.close();
+            myConnection.close();
+        }
+
+        return user;
     }
 
     public boolean deleteAuth(String authToken){
