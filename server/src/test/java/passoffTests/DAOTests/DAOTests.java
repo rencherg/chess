@@ -59,11 +59,19 @@ public class DAOTests {
     public void getUserSQL() throws SQLException, DataAccessException {
         SQLUserDAO sqlUserDAO = new SQLUserDAO();
 
-        Assertions.assertNull(sqlUserDAO.getUser("badusername"));
+        Assertions.assertNotNull(sqlUserDAO.getUser("username"));
         Assertions.assertNull(sqlUserDAO.checkUserData("badusername", "badpassword"));
 
         Assertions.assertNotNull(sqlUserDAO.getUser("username"));
         Assertions.assertNotNull(sqlUserDAO.checkUserData("username", "password"));
+
+    }
+
+    @Test
+    public void createUserSQL() throws SQLException, DataAccessException {
+        SQLUserDAO sqlUserDAO = new SQLUserDAO();
+
+        sqlUserDAO.createUser(new UserData("fmulder", "trustno1", "fmulder@fbi.gov"));
 
     }
 

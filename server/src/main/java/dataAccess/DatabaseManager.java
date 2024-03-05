@@ -1,5 +1,7 @@
 package dataAccess;
 
+import model.UserData;
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -67,4 +69,41 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
+
+    //Execute a secure SQL query and return the result set
+//    public static ResultSet executeQueryWithParams(Connection myConnection, String queryString, String ... queryArgs) throws SQLException {
+//
+////        Connection myConnection = null;
+//        PreparedStatement myPreparedStatement = null;
+//        ResultSet resultSet = null;
+//
+//        try {
+//
+//            myConnection = getConnection();
+//            myPreparedStatement = myConnection.prepareStatement(queryString);
+//            myPreparedStatement = myConnection.prepareStatement();
+//
+//            int index = 1;
+//            for(String arg:queryArgs){
+//                myPreparedStatement.setString(index, arg);
+//                index++;
+//            }
+//            resultSet = myPreparedStatement.executeQuery();
+//
+//        } catch (SQLException | DataAccessException e) {
+//            e.printStackTrace();
+//
+//        } finally{
+//            if(myPreparedStatement != null){
+//                myPreparedStatement.close();
+//            }
+//
+////            if(myConnection != null){
+////                myConnection.close();
+////            }
+//
+//            return resultSet, myPreparedStatement;
+//        }
+//
+//    }
 }
