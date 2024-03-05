@@ -2,15 +2,36 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.security.SecureRandom;
+import java.sql.SQLException;
+
 //Auth Dao
 public interface AuthDAO {
 
-    AuthData createAuth(String username);
+    AuthData createAuth(String username) throws SQLException;
 
-    boolean deleteAuth(String authToken);
+    boolean deleteAuth(String authToken) throws SQLException;
 
-    AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken) throws SQLException;
 
-//    AuthData getAuthUsername(String username);
+    //Generates a unique token
+    default String getUniqueToken() throws SQLException {
+
+        SecureRandom random = new SecureRandom();
+        byte bytes[] = new byte[20];
+        String token = "";
+
+        boolean foundValidToken = false;
+
+        while(foundValidToken == false){
+            random.nextBytes(bytes);
+            token = bytes.toString();
+            if(this.getAuth(token) == null){
+                foundValidToken = true;
+            }
+        }
+
+        return token;
+    }
 
 }

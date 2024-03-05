@@ -6,61 +6,41 @@ import model.UserData;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 
-public class SQLAuthDAO  implements AuthDAO{
+public class SQLAuthDAO implements AuthDAO{
 
-    public SQLAuthDAO() {
-
-    }
-
-    //Generates a unique token
-    private String getUniqueToken(){
-
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        String token = "";
-
-        boolean foundValidToken = false;
-
-        while(foundValidToken == false){
-            random.nextBytes(bytes);
-            token = bytes.toString();
-            if(this.getAuth(token) == null){
-                foundValidToken = true;
-            }
-        }
-
-        return token;
-    }
-
-    public AuthData createAuth(String username){
+    public AuthData createAuth(String username) throws SQLException {
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
-        boolean wasSuccesful;
+        String userID = SQLUserDAO.getUserID(username);
+        String token = this.getUniqueToken();
+        AuthData authData = null;
 
-        UserData foundData = null;
-
-        //Getuserid first
+        if(userID == null){
+            return null;
+        }
 
         try {
 
             myConnection = DatabaseManager.getConnection();
             String sqlQuery = "INSERT INTO auth_data\n" +
                     "(\n" +
-                    "    user_id,\n" +
                     "    username,\n" +
-                    "    token\n" +
+                    "    token,\n" +
+                    "    user_id\n" +
                     ")\n" +
                     "VALUES\n" +
                     "(?, ?, ?);";
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
-            myPreparedStatement.setString(1, user.getUsername());
-            myPreparedStatement.setString(2, user.getPassword());
-            myPreparedStatement.setString(3, user.getEmail());
-            wasSuccesful = myPreparedStatement.execute();
+            myPreparedStatement.setString(1, username);
+            myPreparedStatement.setString(2, token);
+            myPreparedStatement.setString(3, userID);
+            if(myPreparedStatement.execute()){
+                authData = new AuthData(token, username);
+            }
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
@@ -68,45 +48,68 @@ public class SQLAuthDAO  implements AuthDAO{
 
             myPreparedStatement.close();
             myConnection.close();
-        }
+            return authData;
 
-        return user;
+        }
     }
 
-    public boolean deleteAuth(String authToken){
+    public boolean deleteAuth(String authToken) throws SQLException {
 
-        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
+        Connection myConnection = null;
+        PreparedStatement myPreparedStatement = null;
 
-        AuthData iteratorData;
+        try {
 
-        while (dataIterator.hasNext()) {
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "DELETE * FROM auth_data WHERE token = ?;";
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            myPreparedStatement.setString(1, authToken);
+            myPreparedStatement.executeQuery();
 
-            iteratorData = dataIterator.next();
+            return true;
 
-            if(iteratorData.getAuthToken().equals(authToken)){
-                TempDB.authSet.remove(iteratorData);
-                return true;
-            }
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        } finally{
+            myPreparedStatement.close();
+            myConnection.close();
+
         }
-        return false;
 
     }
 
-    public AuthData getAuth(String authToken){
+    public AuthData getAuth(String authToken) throws SQLException {
 
-        Iterator<AuthData> dataIterator = TempDB.authSet.iterator();
+        Connection myConnection = null;
+        PreparedStatement myPreparedStatement = null;
+        ResultSet resultSet = null;
 
-        AuthData iteratorData;
+        AuthData foundData = null;
 
-        while (dataIterator.hasNext()) {
+        try {
 
-            iteratorData = dataIterator.next();
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "SELECT * FROM auth_data WHERE token = ?;";
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            myPreparedStatement.setString(1, authToken);
+            resultSet = myPreparedStatement.executeQuery();
 
-            if(iteratorData.getAuthToken().equals(authToken)){
-                return iteratorData;
+            while (resultSet.next()) {
+                foundData = new AuthData(resultSet.getString("token"), resultSet.getString("username"));
             }
+
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+        } finally{
+            if(resultSet != null){
+                resultSet.close();
+            }
+            myPreparedStatement.close();
+            myConnection.close();
+
+            return foundData;
         }
-        return null;
 
     }
 }

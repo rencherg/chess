@@ -33,8 +33,32 @@ public class DatabaseManager {
         }
     }
 
+    static {
+        try {
+            DatabaseManager.createDatabase();
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to create the database. " + ex.getMessage());
+        }
+    }
+
     /**
      * Creates the database if it does not already exist.
+     */
+    public static void createDatabase() throws DataAccessException {
+        try {
+            var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+            var conn = DriverManager.getConnection(connectionUrl, user, password);
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    /**
+     * Creates the required tables if it does not already exist.
      */
     public static void createDatabase() throws DataAccessException {
         try {
@@ -69,41 +93,4 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
-
-    //Execute a secure SQL query and return the result set
-//    public static ResultSet executeQueryWithParams(Connection myConnection, String queryString, String ... queryArgs) throws SQLException {
-//
-////        Connection myConnection = null;
-//        PreparedStatement myPreparedStatement = null;
-//        ResultSet resultSet = null;
-//
-//        try {
-//
-//            myConnection = getConnection();
-//            myPreparedStatement = myConnection.prepareStatement(queryString);
-//            myPreparedStatement = myConnection.prepareStatement();
-//
-//            int index = 1;
-//            for(String arg:queryArgs){
-//                myPreparedStatement.setString(index, arg);
-//                index++;
-//            }
-//            resultSet = myPreparedStatement.executeQuery();
-//
-//        } catch (SQLException | DataAccessException e) {
-//            e.printStackTrace();
-//
-//        } finally{
-//            if(myPreparedStatement != null){
-//                myPreparedStatement.close();
-//            }
-//
-////            if(myConnection != null){
-////                myConnection.close();
-////            }
-//
-//            return resultSet, myPreparedStatement;
-//        }
-//
-//    }
 }
