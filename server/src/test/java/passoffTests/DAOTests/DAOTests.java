@@ -1,5 +1,6 @@
 package passoffTests.DAOTests;
 
+import chess.ChessGame;
 import dataAccess.*;
 import org.junit.jupiter.api.*;
 import model.AuthData;
@@ -15,6 +16,9 @@ public class DAOTests {
 
     private final MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     private final MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    SQLUserDAO sqlUserDAO = new SQLUserDAO();
+
+
 
     @BeforeAll
     public static void init() throws SQLException, DataAccessException {
@@ -68,26 +72,84 @@ public class DAOTests {
     }
 
     @Test
-    public void createUserSQL() throws SQLException, DataAccessException {
-        SQLUserDAO sqlUserDAO = new SQLUserDAO();
-
-        sqlUserDAO.createUser(new UserData("john paul jones", "trustno1", "fmulder@fbi.gov"));
-
-    }
-
-    @Test
     public void getCount() throws SQLException, DataAccessException {
         SQLGameDAO sqlGameDAO = new SQLGameDAO();
 
-        System.out.println(DatabaseManager.rowCount("game_data"));
+        //Need to change
+        Assertions.assertTrue(DatabaseManager.rowCount("game_data") == 0);
 
     }
 
+    @Test
+    public void getUserSQLPositive() throws SQLException {
+        sqlUserDAO.createUser(new UserData("don", "trustno1", "don@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("carlos", "trustno1", "carlos@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("smith", "trustno1", "smith@fbi.gov"));
 
+        Assertions.assertEquals("carlos@fbi.gov", sqlUserDAO.getUser("carlos").getEmail());
+
+    }
 
     @Test
-    @AfterAll
+    public void getUserSQLNegative() throws SQLException {
+        sqlUserDAO.createUser(new UserData("don", "trustno1", "don@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("carlos", "trustno1", "carlos@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("smith", "trustno1", "smith@fbi.gov"));
+
+        TestDAO.clearDB();
+
+        Assertions.assertNull(sqlUserDAO.getUser("carlos"));
+
+    }
+
+    @Test
+    public void checkUserDataSQLPositive() throws SQLException {
+        sqlUserDAO.createUser(new UserData("don", "trustno1", "don@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("carlos", "trustno1", "carlos@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("smith", "trustno1", "smith@fbi.gov"));
+
+        Assertions.assertEquals("carlos@fbi.gov", sqlUserDAO.checkUserData("carlos", "trustno1").getEmail());
+
+    }
+
+    @Test
+    public void checkUserDataSQLNegative() throws SQLException {
+        sqlUserDAO.createUser(new UserData("don", "trustno1", "don@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("carlos", "trustno1", "carlos@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("smith", "trustno1", "smith@fbi.gov"));
+
+        TestDAO.clearDB();
+
+        Assertions.assertNull(sqlUserDAO.checkUserData("carlos", "trustno1"));
+
+    }
+
+    //Verifies that a new user was successfully created.
+    @Test
+    public void createUserSQLPositive() throws SQLException {
+        sqlUserDAO.createUser(new UserData("john paul jones", "trustno1", "fmulder@fbi.gov"));
+
+        Assertions.assertEquals("fmulder@fbi.gov", sqlUserDAO.getUser("john paul jones").getEmail());
+
+    }
+
+    @Test
+    //Fix this
+    public void createUserSQLNegative() throws SQLException {
+        sqlUserDAO.createUser(new UserData(null, "", ""));
+
+//        Assertions.assertEquals("b", sqlUserDAO.getUser("").getEmail());
+    }
+
+    @Test
     public void clearDB() throws SQLException, DataAccessException {
+
+        Assertions.assertTrue(TestDAO.clearDB());
+    }
+
+    @Test
+//    @AfterEach
+    public void clearDBAfterEach() throws SQLException, DataAccessException {
 
         Assertions.assertTrue(TestDAO.clearDB());
     }
@@ -98,6 +160,7 @@ public class DAOTests {
 //2. Clear functions
 //3. Write unit tests
 //4. 1 Unit test for chess board moves
+//5. Password Encryption
 //5. Connect the codebase to the db code
 //6. Provided Unit tests
 //7. Clean up code

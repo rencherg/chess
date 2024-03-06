@@ -8,6 +8,10 @@ public class SQLUserDAO implements UserDAO {
 
     public UserData getUser(String username) throws SQLException {
 
+        if(DatabaseManager.rowCount("user_data") == 0){
+            return null;
+        }
+
         UserData foundData = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -21,10 +25,8 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(1, username);
             resultSet = myPreparedStatement.executeQuery();
 
-            // Step 5: Process the result
-            while (resultSet.next()) {
-                foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
-            }
+            resultSet.next();
+            foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
@@ -42,6 +44,10 @@ public class SQLUserDAO implements UserDAO {
     //for internal package use
     static String getUserID(String username) throws SQLException {
 
+        if(DatabaseManager.rowCount("user_data") == 0){
+            return null;
+        }
+
         UserData foundData = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -55,7 +61,6 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(1, username);
             resultSet = myPreparedStatement.executeQuery();
 
-            // Step 5: Process the result
             if(resultSet.next()) {
                 return resultSet.getString("id");
             }
@@ -76,10 +81,13 @@ public class SQLUserDAO implements UserDAO {
     //Checks if username and password are correct
     public UserData checkUserData(String username, String password) throws SQLException {
 
+        if(DatabaseManager.rowCount("user_data") == 0){
+            return null;
+        }
+
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         ResultSet resultSet = null;
-
         UserData foundData = null;
 
         try {
@@ -91,7 +99,6 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(2, password);
             resultSet = myPreparedStatement.executeQuery();
 
-            // Step 5: Process the result
             while (resultSet.next()) {
                 foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
             }
