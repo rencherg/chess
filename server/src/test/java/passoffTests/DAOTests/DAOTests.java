@@ -75,6 +75,14 @@ public class DAOTests {
 
     }
 
+    @Test
+    public void getCountL() throws SQLException, DataAccessException {
+        SQLGameDAO sqlGameDAO = new SQLGameDAO();
+
+        System.out.println(sqlGameDAO.rowCount("game_data"));
+
+    }
+
 //    @Test
 //    @Order(3)
 //    public void SQLUserDAO() throws SQLException, DataAccessException {

@@ -122,4 +122,38 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
+
+    //Returns how many rows are in a table
+    static int rowCount(String tableName) throws SQLException {
+
+        Connection myConnection = null;
+        PreparedStatement myPreparedStatement = null;
+        ResultSet resultSet = null;
+        int rowCount = 0;
+
+        try {
+
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "SELECT COUNT(*) FROM " + tableName + ";";
+            System.out.println(sqlQuery);
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            resultSet = myPreparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                rowCount = resultSet.getInt("COUNT(*)");
+            }
+
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+        } finally{
+            if(resultSet != null){
+                resultSet.close();
+            }
+            myPreparedStatement.close();
+            myConnection.close();
+
+            return rowCount;
+        }
+
+    }
 }

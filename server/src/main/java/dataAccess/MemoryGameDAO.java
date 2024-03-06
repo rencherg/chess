@@ -3,6 +3,7 @@ package dataAccess;
 import chess.ChessGame;
 import model.GameData;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -12,23 +13,7 @@ public class MemoryGameDAO implements GameDAO {
 
     }
 
-    private int getUniqueID(){
-
-        int id = 0;
-
-        boolean foundValidToken = false;
-
-        while(foundValidToken == false){
-            id = ThreadLocalRandom.current().nextInt(1000, 10000);
-            if(this.getGame(id) == null){
-                foundValidToken = true;
-            }
-        }
-
-        return id;
-    }
-
-    public GameData createGame(ChessGame game, String blackUsername, String whiteUsername, String gameName){
+    public GameData createGame(ChessGame game, String blackUsername, String whiteUsername, String gameName) throws SQLException {
         GameData gameData = new GameData(this.getUniqueID(), blackUsername, whiteUsername, gameName, game);
         TempDB.gameSet.add(gameData);
         return gameData;

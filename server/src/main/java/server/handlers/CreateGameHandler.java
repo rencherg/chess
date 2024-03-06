@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +31,8 @@ public class CreateGameHandler extends ParentHandler{
         catch (RuntimeException exception){
             this.parseException(exception, res);
             gsonString = gson.toJson(responseMap);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
 

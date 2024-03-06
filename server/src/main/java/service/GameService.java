@@ -7,6 +7,8 @@ import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
 
+import java.sql.SQLException;
+
 public class GameService {
     private final MemoryGameDAO memoryGameDAO;
     private final MemoryAuthDAO memoryAuthDAO;
@@ -28,7 +30,7 @@ public class GameService {
         }
     }
 
-    public int createGame(String authToken, String gameName){
+    public int createGame(String authToken, String gameName) throws SQLException {
         if(this.memoryAuthDAO.getAuth(authToken) == null){
             throw new RuntimeException("Error: unauthorized");
         }if((this.checkInfo(gameName))){
