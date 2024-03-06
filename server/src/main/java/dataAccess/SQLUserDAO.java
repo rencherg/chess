@@ -6,10 +6,6 @@ import java.sql.*;
 
 public class SQLUserDAO implements UserDAO {
 
-//    public SQLUserDAO() throws DataAccessException, SQLException {
-//
-//    }
-
     public UserData getUser(String username) throws SQLException {
 
         UserData foundData = null;
