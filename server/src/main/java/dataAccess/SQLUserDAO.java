@@ -102,8 +102,12 @@ public class SQLUserDAO implements UserDAO {
             if(resultSet != null){
                 resultSet.close();
             }
-            myPreparedStatement.close();
-            myConnection.close();
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
 
             return foundData;
         }
@@ -113,9 +117,7 @@ public class SQLUserDAO implements UserDAO {
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
-        boolean wasSuccesful;
-
-        UserData foundData = null;
+        boolean wasSuccesful = false;
 
         try {
 
@@ -138,10 +140,19 @@ public class SQLUserDAO implements UserDAO {
             e.printStackTrace();
         } finally{
 
-            myPreparedStatement.close();
-            myConnection.close();
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
+
         }
 
-        return user;
+        if(wasSuccesful){
+            return user;
+        }else{
+            return null;
+        }
     }
 }

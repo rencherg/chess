@@ -46,8 +46,12 @@ public class SQLAuthDAO implements AuthDAO{
             e.printStackTrace();
         } finally{
 
-            myPreparedStatement.close();
-            myConnection.close();
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
             return authData;
 
         }
@@ -72,8 +76,12 @@ public class SQLAuthDAO implements AuthDAO{
             e.printStackTrace();
             return false;
         } finally{
-            myPreparedStatement.close();
-            myConnection.close();
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
 
         }
 
@@ -105,8 +113,12 @@ public class SQLAuthDAO implements AuthDAO{
             if(resultSet != null){
                 resultSet.close();
             }
-            myPreparedStatement.close();
-            myConnection.close();
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
 
             return foundData;
         }

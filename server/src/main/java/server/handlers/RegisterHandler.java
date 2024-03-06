@@ -5,11 +5,13 @@ import model.UserData;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
+
 public class RegisterHandler extends ParentHandler {
 
     public String handleRequest(Request req, Response res) {
 
-        String gsonString = "";
+        String gsonString;
 
         try{
 
@@ -27,6 +29,8 @@ public class RegisterHandler extends ParentHandler {
         }
         catch (RuntimeException exception){
             this.parseException(exception, res);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         gsonString = gson.toJson(responseMap);

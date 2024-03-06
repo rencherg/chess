@@ -5,6 +5,8 @@ import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 
+import java.sql.SQLException;
+
 public class UserService {
 
     private final MemoryUserDAO memoryUserDAO;
@@ -20,7 +22,7 @@ public class UserService {
         return((!data.equals("")) && (data.length() > 0));
     }
 
-    public AuthData register(UserData userData) throws RuntimeException{
+    public AuthData register(UserData userData) throws RuntimeException, SQLException {
         if(memoryUserDAO.getUser(userData.getUsername()) != null){
             throw new RuntimeException("Error: already taken");
         } else if(checkInfo(userData.getUsername()) && checkInfo(userData.getPassword()) && checkInfo(userData.getEmail()) && (this.memoryUserDAO.getUser(userData.getUsername())==null)){
@@ -32,7 +34,7 @@ public class UserService {
         }
     }
 
-    public AuthData login(String username, String password){
+    public AuthData login(String username, String password) throws SQLException {
         if ((this.memoryUserDAO.checkUserData(username, password) == null)) {
             throw new RuntimeException("Error: unauthorized");
         } else if(checkInfo(username) && checkInfo(password)){// && (this.memoryAuthDAO.getAuthUsername(username) == null) This part may need to be included to prevent a user from logging in again

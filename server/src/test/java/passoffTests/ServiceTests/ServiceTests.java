@@ -9,6 +9,8 @@ import service.DeleteService;
 import service.GameService;
 import service.UserService;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
@@ -28,7 +30,7 @@ public class ServiceTests {
     @Test
     @Order(2)
     @DisplayName("register positive")
-    public void registerTestPositive() {
+    public void registerTestPositive() throws SQLException{
         Assertions.assertNotNull(this.userService.register(new UserData("cougarboy123", "password", "rencher.grant@gmail.com")));
     }
 
@@ -48,7 +50,7 @@ public class ServiceTests {
     @Test
     @Order(4)
     @DisplayName("login positive")
-    public void loginTestPositive() {
+    public void loginTestPositive() throws SQLException {
         AuthData authData = this.userService.register(new UserData("fmulder", "trustno1", "f.mulder@fbi.gov"));
         this.userService.logout(authData.getAuthToken());
         Assertions.assertNotNull(this.userService.login("fmulder", "trustno1"));
@@ -70,7 +72,7 @@ public class ServiceTests {
     @Test
     @Order(6)
     @DisplayName("logout positive")
-    public void logoutTestPositive() {
+    public void logoutTestPositive() throws SQLException {
         AuthData authData = this.userService.register(new UserData("wskinner", "trustno1", "f.mulder@fbi.gov"));
         Assertions.assertTrue(this.userService.logout(authData.getAuthToken()));
     }
@@ -78,7 +80,7 @@ public class ServiceTests {
     @Test
     @Order(7)
     @DisplayName("logout negative")
-    public void logoutTestNegative() {
+    public void logoutTestNegative() throws SQLException {
         this.userService.register(new UserData("dreadpirateroberts", "trustno1", "f.mulder@fbi.gov"));
 
         Exception thrownException = assertThrows(RuntimeException.class, () -> {
@@ -93,7 +95,7 @@ public class ServiceTests {
     @Test
     @Order(8)
     @DisplayName("createGame positive")
-    public void createGamePositive() {
+    public void createGamePositive() throws SQLException {
         AuthData authData = this.userService.register(new UserData("johnpauljones", "trustno1", "f.mulder@fbi.gov"));
         int id = this.gameService.createGame(authData.getAuthToken(), "my game");
         Assertions.assertNotNull(id);
@@ -114,7 +116,7 @@ public class ServiceTests {
     @Test
     @Order(10)
     @DisplayName("joinGame positive")
-    public void joinGamePositive(){
+    public void joinGamePositive() throws SQLException {
         AuthData authData = this.userService.register(new UserData("akrycek", "trustno1", "f.mulder@fbi.gov"));
         int id = this.gameService.createGame(authData.getAuthToken(), "my game");
         Assertions.assertNotNull(this.gameService.joinGame(authData.getAuthToken(), "WHITE", id));
@@ -123,7 +125,7 @@ public class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("joinGame negative")
-    public void joinGameNegative(){
+    public void joinGameNegative() throws SQLException {
         AuthData authData1 = this.userService.register(new UserData("mlg", "trustno1", "f.mulder@fbi.gov"));
         AuthData authData2 = this.userService.register(new UserData("grantacus_", "password", "rencher.grant@gmail.com"));
         int id = this.gameService.createGame(authData1.getAuthToken(), "my game");
@@ -140,7 +142,7 @@ public class ServiceTests {
     @Test
     @Order(12)
     @DisplayName("getGame positive")
-    public void getGamePositive(){
+    public void getGamePositive() throws SQLException {
         AuthData authData = this.userService.register(new UserData("byu", "trustno1", "f.mulder@fbi.gov"));
         this.gameService.createGame(authData.getAuthToken(), "game1");
         this.gameService.createGame(authData.getAuthToken(), "game2");

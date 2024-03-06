@@ -2,6 +2,7 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 
 import java.security.SecureRandom;
@@ -13,26 +14,26 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     //Generates a unique token
-    private String getUniqueToken(){
+//    private String getUniqueToken(){
+//
+//        SecureRandom random = new SecureRandom();
+//        byte bytes[] = new byte[20];
+//        String token = "";
+//
+//        boolean foundValidToken = false;
+//
+//        while(foundValidToken == false){
+//            random.nextBytes(bytes);
+//            token = bytes.toString();
+//            if(this.getAuth(token) == null){
+//                foundValidToken = true;
+//            }
+//        }
+//
+//        return token;
+//    }
 
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        String token = "";
-
-        boolean foundValidToken = false;
-
-        while(foundValidToken == false){
-            random.nextBytes(bytes);
-            token = bytes.toString();
-            if(this.getAuth(token) == null){
-                foundValidToken = true;
-            }
-        }
-
-        return token;
-    }
-
-    public AuthData createAuth(String username){
+    public AuthData createAuth(String username) throws SQLException {
 
         AuthData authData = new AuthData(this.getUniqueToken(), username);
         TempDB.authSet.add(authData);

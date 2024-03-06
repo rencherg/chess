@@ -40,7 +40,7 @@ public class DAOTests {
 
     @Test
     @Order(2)
-    public void authDAOTest(){
+    public void authDAOTest() throws SQLException {
 
         AuthData myAuthData = this.memoryAuthDAO.createAuth("rencherg");
 
@@ -71,7 +71,7 @@ public class DAOTests {
     public void createUserSQL() throws SQLException, DataAccessException {
         SQLUserDAO sqlUserDAO = new SQLUserDAO();
 
-        sqlUserDAO.createUser(new UserData("fmulder", "trustno1", "fmulder@fbi.gov"));
+        sqlUserDAO.createUser(new UserData("john paul jones", "trustno1", "fmulder@fbi.gov"));
 
     }
 
