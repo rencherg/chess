@@ -124,7 +124,7 @@ public class DatabaseManager {
     }
 
     //Returns how many rows are in a table
-    static int rowCount(String tableName) throws SQLException {
+    public static int rowCount(String tableName) throws SQLException {
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -135,7 +135,6 @@ public class DatabaseManager {
 
             myConnection = DatabaseManager.getConnection();
             String sqlQuery = "SELECT COUNT(*) FROM " + tableName + ";";
-            System.out.println(sqlQuery);
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
             resultSet = myPreparedStatement.executeQuery();
 

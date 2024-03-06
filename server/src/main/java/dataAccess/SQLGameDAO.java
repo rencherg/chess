@@ -56,41 +56,37 @@ public class SQLGameDAO implements GameDAO{
     }
 
     public GameData[] listGames() throws SQLException {
-        GameData gameDataArray[];
-
-        GameData foundData = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         ResultSet resultSet = null;
+        int rowCount = DatabaseManager.rowCount("game_data");
+        GameData gameDataArray[] = new GameData[rowCount];
+        int currentIndex = 0;
 
-//        try {
-//
-//            myConnection = DatabaseManager.getConnection();
-//            String sqlQuery = "SELECT * FROM game_data WHERE game_id = ?;";
-//            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
-//            myPreparedStatement.setString(1, String.valueOf(gameID));
-//            resultSet = myPreparedStatement.executeQuery();
-//
-//            // Step 5: Process the result
-//            while (resultSet.next()) {
-//                ChessGame game = gson.fromJson(resultSet.getString("game_data"), ChessGame.class);
-//                foundData = new GameData(resultSet.getInt("id"), resultSet.getString("black_username"), resultSet.getString("white_username"), resultSet.getString("game_name"), game);
-//            }
-//
-//        } catch (SQLException | DataAccessException e) {
-//            e.printStackTrace();
-//        } finally{
-//            if(resultSet != null){
-//                resultSet.close();
-//            }
-//            myPreparedStatement.close();
-//            myConnection.close();
-//
-//            return foundData;
-//        }
+        try {
 
-//        return gameDataArray;
-        return null;
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "SELECT * FROM game_data;";
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            resultSet = myPreparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                ChessGame game = gson.fromJson(resultSet.getString("game_data"), ChessGame.class);
+                gameDataArray[currentIndex] = new GameData(resultSet.getInt("id"), resultSet.getString("black_username"), resultSet.getString("white_username"), resultSet.getString("game_name"), game);
+                currentIndex++;
+            }
+
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+        } finally{
+            if(resultSet != null){
+                resultSet.close();
+            }
+            myPreparedStatement.close();
+            myConnection.close();
+        }
+
+        return gameDataArray;
     }
 
     public GameData updateGame(ChessGame game, int gameID) throws SQLException {

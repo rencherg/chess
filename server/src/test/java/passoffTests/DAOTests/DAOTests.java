@@ -76,10 +76,10 @@ public class DAOTests {
     }
 
     @Test
-    public void getCountL() throws SQLException, DataAccessException {
+    public void getCount() throws SQLException, DataAccessException {
         SQLGameDAO sqlGameDAO = new SQLGameDAO();
 
-        System.out.println(sqlGameDAO.rowCount("game_data"));
+        System.out.println(DatabaseManager.rowCount("game_data"));
 
     }
 
