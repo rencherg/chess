@@ -99,3 +99,12 @@ public class DAOTests {
 //        return new SQLUserDAO();
 //    }
 }
+
+//Todo:
+//1. Fix up resultset
+//2. Clear functions
+//3. Write unit tests
+//4. 1 Unit test for chess board moves
+//5. Connect the codebase to the db code
+//6. Provided Unit tests
+//7. Clean up code

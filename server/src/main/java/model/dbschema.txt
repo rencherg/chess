@@ -19,6 +19,10 @@ INSERT INTO game_data
 VALUES
 ('rencherg', 'fmulder', 'Test Game', 'Test Data');
 
+UPDATE game_data
+SET game_data = 'data'
+WHERE id = 1;
+
 auth_data Table
 id user_id username token
 
