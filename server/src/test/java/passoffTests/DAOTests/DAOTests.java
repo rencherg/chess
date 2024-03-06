@@ -1,10 +1,7 @@
 package passoffTests.DAOTests;
 
 import dataAccess.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import model.AuthData;
 import model.UserData;
 
@@ -23,6 +20,7 @@ public class DAOTests {
     public static void init() throws SQLException, DataAccessException {
     }
 
+    //Old memory DAO test
     @Test
     @Order(1)
     public void userDAOTest(){
@@ -38,6 +36,7 @@ public class DAOTests {
         Assertions.assertNotEquals(this.memoryUserDAO.checkUserData("rencherg", "password"), myUser2);
     }
 
+    //Old memory DAO test
     @Test
     @Order(2)
     public void authDAOTest() throws SQLException {
@@ -55,6 +54,7 @@ public class DAOTests {
 
     }
 
+    //Old memory DAO test
     @Test
     public void getUserSQL() throws SQLException, DataAccessException {
         SQLUserDAO sqlUserDAO = new SQLUserDAO();
@@ -83,21 +83,14 @@ public class DAOTests {
 
     }
 
-//    @Test
-//    @Order(3)
-//    public void SQLUserDAO() throws SQLException, DataAccessException {
-//
-//        SQLUserDAO sqlUserDAO = new SQLUserDAO();
-//
-//        sqlUserDAO().testFunction();
-//
-//        Assertions.assertNull(null);
 
-//    }
 
-//    private SQLUserDAO sqlUserDAO() {
-//        return new SQLUserDAO();
-//    }
+    @Test
+    @AfterAll
+    public void clearDB() throws SQLException, DataAccessException {
+
+        Assertions.assertTrue(TestDAO.clearDB());
+    }
 }
 
 //Todo:

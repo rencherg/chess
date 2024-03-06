@@ -1,5 +1,6 @@
 package dataAccess;
 
+import model.AuthData;
 import model.UserData;
 
 import java.sql.*;
@@ -153,6 +154,35 @@ public class DatabaseManager {
 
             return rowCount;
         }
+
+    }
+
+    public static boolean clearTable(String tableName) throws SQLException {
+
+        Connection myConnection = null;
+        PreparedStatement myPreparedStatement = null;
+        boolean result = false;
+
+        try {
+
+            myConnection = DatabaseManager.getConnection();
+            String sqlQuery = "DELETE FROM " + tableName + ";";
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            myPreparedStatement.executeUpdate();
+            result = true;
+
+        } catch (SQLException | DataAccessException e) {
+            e.printStackTrace();
+        } finally{
+            if(myPreparedStatement!= null){
+                myPreparedStatement.close();
+            }
+            if(myConnection != null){
+                myConnection.close();
+            }
+        }
+
+        return result;
 
     }
 }

@@ -1,14 +1,16 @@
 package dataAccess;
 
+import java.sql.SQLException;
+
 public class TestDAO {
     public TestDAO(){
     }
 
-    public boolean clearDB(){
+    public static boolean clearDB() throws SQLException {
 
-        TempDB.gameSet.clear();
-        TempDB.userSet.clear();
-        TempDB.authSet.clear();
+        DatabaseManager.clearTable("auth_data");
+        DatabaseManager.clearTable("game_data");
+        DatabaseManager.clearTable("user_data");
         return true;
     }
 }

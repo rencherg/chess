@@ -23,7 +23,7 @@ public class ServiceTests {
     @Test
     @Order(1)
     @DisplayName("Delete positive")
-    public void deleteTest() {
+    public void deleteTest() throws SQLException {
         Assertions.assertTrue(this.deleteService.clear());
     }
 
