@@ -7,6 +7,7 @@ import java.sql.*;
 
 public class SQLUserDAO implements UserDAO {
 
+
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public UserData getUser(String username) throws SQLException {
