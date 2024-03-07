@@ -8,8 +8,6 @@ import model.GameData;
 import java.sql.SQLException;
 
 public class GameService {
-//    private final MemoryGameDAO memoryGameDAO;
-//    private final MemoryAuthDAO memoryAuthDAO;
     private final SQLGameDAO sqlGameDAO;
     private final SQLAuthDAO sqlAuthDAO;
 

@@ -10,8 +10,6 @@ import java.sql.SQLException;
 
 public class UserService {
 
-//    private final MemoryUserDAO memoryUserDAO;
-//    private final MemoryAuthDAO memoryAuthDAO;
     private final SQLUserDAO sqlUserDAO;
     private final SQLAuthDAO sqlAuthDAO;
 

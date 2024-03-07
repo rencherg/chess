@@ -1,10 +1,13 @@
 package dataAccess;
 
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.*;
 
 public class SQLUserDAO implements UserDAO {
+
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public UserData getUser(String username) throws SQLException {
 
@@ -88,40 +91,20 @@ public class SQLUserDAO implements UserDAO {
             return null;
         }
 
-        Connection myConnection = null;
-        PreparedStatement myPreparedStatement = null;
-        ResultSet resultSet = null;
         UserData foundData = null;
 
         try {
 
-            myConnection = DatabaseManager.getConnection();
-            String sqlQuery = "SELECT * FROM user_data WHERE username = ? and password = ?;";
-            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
-            myPreparedStatement.setString(1, username);
-            myPreparedStatement.setString(2, password);
-            resultSet = myPreparedStatement.executeQuery();
-
-            if(resultSet.next()) {
-                foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
+            UserData userData = this.getUser(username);
+            if((userData != null) && (encoder.matches(password, userData.getPassword()))){
+                foundData = userData;
             }
 
-        } catch (SQLException | DataAccessException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
-        } finally{
-            if(resultSet != null){
-                resultSet.close();
-            }
-            if(myPreparedStatement!= null){
-                myPreparedStatement.close();
-            }
-            if(myConnection != null){
-                myConnection.close();
-            }
-
-            return foundData;
         }
+        return foundData;
     }
 
     public UserData createUser(UserData user) throws SQLException {
@@ -130,6 +113,9 @@ public class SQLUserDAO implements UserDAO {
         if(this.getUser(user.getUsername()) != null){
             throw new RuntimeException("Error: User already exists");
         }
+
+        //password encryption
+        String encryptedPassword = encoder.encode(user.getPassword());
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -148,7 +134,7 @@ public class SQLUserDAO implements UserDAO {
                     "(?, ?, ?);";
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
             myPreparedStatement.setString(1, user.getUsername());
-            myPreparedStatement.setString(2, user.getPassword());
+            myPreparedStatement.setString(2, encryptedPassword);
             myPreparedStatement.setString(3, user.getEmail());
             myPreparedStatement.execute();
             wasSuccesful = true;

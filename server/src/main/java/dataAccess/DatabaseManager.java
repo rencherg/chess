@@ -1,8 +1,5 @@
 package dataAccess;
 
-import model.AuthData;
-import model.UserData;
-
 import java.sql.*;
 import java.util.Properties;
 
@@ -152,8 +149,10 @@ public class DatabaseManager {
             myPreparedStatement.close();
             myConnection.close();
 
-            return rowCount;
+
         }
+
+        return rowCount;
 
     }
 

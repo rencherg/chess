@@ -178,7 +178,7 @@ public class DAOTests {
     }
 
     @Test
-    public void getAuthSQLNegative() throws SQLException, DataAccessException {
+    public void getAuthSQLNegative() throws SQLException{
 
         Assertions.assertNull(sqlAuthDAO.getAuth("doesn't exist"));
 
@@ -319,13 +319,3 @@ public class DAOTests {
         Assertions.assertTrue(TestDAO.clearDB());
     }
 }
-
-//Todo:
-//1. Fix up result set
-//2. Clear functions
-//3. Write unit tests
-//4. 1 Unit test for chess board moves
-//5. Password Encryption
-//5. Connect the codebase to the db code
-//6. Provided Unit tests
-//7. Clean up code
