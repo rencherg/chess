@@ -1,4 +1,4 @@
-package passoffTests.DAOTests;
+package dataAccessTests;
 
 import chess.ChessGame;
 import chess.ChessMove;
