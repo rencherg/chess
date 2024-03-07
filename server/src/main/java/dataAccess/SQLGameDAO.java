@@ -45,7 +45,6 @@ public class SQLGameDAO implements GameDAO{
             }
 
         } catch (SQLException | DataAccessException e) {
-            e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
         } finally{
             if(resultSet != null){
