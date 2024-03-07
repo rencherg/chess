@@ -235,7 +235,7 @@ public class DAOTests {
 
         ChessGame game = new ChessGame();
 
-        GameData gameData1 = sqlGameDAO.createGame(game, "team1", "team1", "fbi");
+        GameData gameData1 = sqlGameDAO.createGame(game, "team1", "team2", "fbi");
         GameData gameData2 = sqlGameDAO.createGame(game, "washington", "washington state", "apple cup");
         GameData gameData3 = sqlGameDAO.createGame(game, "scrappers", "rogue faction", "warscrap.io");
 
@@ -250,7 +250,7 @@ public class DAOTests {
 
         ChessGame game = new ChessGame();
 
-        sqlGameDAO.createGame(game, "team1", "team1", "fbi");
+        sqlGameDAO.createGame(game, "team1", "team2", "fbi");
         sqlGameDAO.createGame(game, "washington", "washington state", "apple cup");
         sqlGameDAO.createGame(game, "scrappers", "rogue faction", "warscrap.io");
 
@@ -263,7 +263,7 @@ public class DAOTests {
 
         ChessGame changedGame = new ChessGame();
 
-        GameData gameData = sqlGameDAO.createGame(changedGame, "team1", "team1", "fbi");
+        GameData gameData = sqlGameDAO.createGame(changedGame, "team1", "team2", "fbi");
 
         changedGame.makeMove(new ChessMove(new ChessPosition(2, 3), new ChessPosition(3, 3), null));
         gameData.setGame(changedGame);
