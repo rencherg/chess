@@ -1,49 +1,49 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 
 import java.sql.SQLException;
 
 public class GameService {
-    private final MemoryGameDAO memoryGameDAO;
-    private final MemoryAuthDAO memoryAuthDAO;
+//    private final MemoryGameDAO memoryGameDAO;
+//    private final MemoryAuthDAO memoryAuthDAO;
+    private final SQLGameDAO sqlGameDAO;
+    private final SQLAuthDAO sqlAuthDAO;
 
     private boolean checkInfo(String data){
         return((data != "") && (data != null) && (data.length() > 0));
     }
 
     public GameService() {
-        this.memoryGameDAO = new MemoryGameDAO();
-        this.memoryAuthDAO = new MemoryAuthDAO();
+        this.sqlGameDAO = new SQLGameDAO();
+        this.sqlAuthDAO = new SQLAuthDAO();
     }
 
-    public GameData[] getGame(String authToken) throws RuntimeException{
-        if(this.memoryAuthDAO.getAuth(authToken) != null){
-            return this.memoryGameDAO.listGames();
+    public GameData[] getGame(String authToken) throws RuntimeException, SQLException {
+        if(this.sqlAuthDAO.getAuth(authToken) != null){
+            return this.sqlGameDAO.listGames();
         }else{
             throw new RuntimeException("Error: unauthorized");
         }
     }
 
     public int createGame(String authToken, String gameName) throws SQLException {
-        if(this.memoryAuthDAO.getAuth(authToken) == null){
+        if(this.sqlAuthDAO.getAuth(authToken) == null){
             throw new RuntimeException("Error: unauthorized");
         }if((this.checkInfo(gameName))){
-            GameData newGameData = this.memoryGameDAO.createGame(new ChessGame(), null, null, gameName);
+            GameData newGameData = this.sqlGameDAO.createGame(new ChessGame(), null, null, gameName);
             return newGameData.getGameID();
         }else{
             throw new RuntimeException("Error: bad request");
         }
     }
 
-    public boolean joinGame(String authToken, String clientColor, int gameID){
-        AuthData userAuthData = this.memoryAuthDAO.getAuth(authToken);
-        GameData gameData = this.memoryGameDAO.getGame(gameID);
+    public boolean joinGame(String authToken, String clientColor, int gameID) throws SQLException {
+        AuthData userAuthData = this.sqlAuthDAO.getAuth(authToken);
+        GameData gameData = this.sqlGameDAO.getGame(gameID);
         if(userAuthData == null){
             throw new RuntimeException("Error: unauthorized");
         } else if(gameData == null) {
@@ -55,9 +55,11 @@ public class GameService {
         }else{
             if(clientColor.equals("WHITE") && gameData.getWhiteUsername()==null){
                 gameData.setWhiteUsername(userAuthData.getUsername());
+                this.sqlGameDAO.updateGame(gameData);
                 return true;
             } else if(clientColor.equals("BLACK") && gameData.getBlackUsername()==null){
                 gameData.setBlackUsername(userAuthData.getUsername());
+                this.sqlGameDAO.updateGame(gameData);
                 return true;
             }else{
                 throw new RuntimeException("Error: bad request");

@@ -1,5 +1,6 @@
 package server.handlers;
 
+import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 import spark.Request;
@@ -30,6 +31,8 @@ public class RegisterHandler extends ParentHandler {
         catch (RuntimeException exception){
             this.parseException(exception, res);
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 

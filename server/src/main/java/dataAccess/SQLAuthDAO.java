@@ -43,6 +43,7 @@ public class SQLAuthDAO implements AuthDAO{
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
+            throw(new RuntimeException("Error: bad SQL query"));
         } finally{
 
             if(myPreparedStatement!= null){
@@ -78,7 +79,7 @@ public class SQLAuthDAO implements AuthDAO{
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
-            throw(e);
+            throw(new RuntimeException("Error: bad SQL query"));
         } finally{
             if(myPreparedStatement!= null){
                 myPreparedStatement.close();
@@ -118,6 +119,7 @@ public class SQLAuthDAO implements AuthDAO{
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
+            throw(new RuntimeException("Error: bad SQL query"));
         } finally{
             if(resultSet != null){
                 resultSet.close();

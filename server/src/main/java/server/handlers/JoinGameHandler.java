@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
+
 public class JoinGameHandler extends ParentHandler{
 
     public String handleRequest(Request req, Response res) {
@@ -27,6 +29,8 @@ public class JoinGameHandler extends ParentHandler{
         }
         catch (RuntimeException exception){
             this.parseException(exception, res);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         gsonString = gson.toJson(responseMap);

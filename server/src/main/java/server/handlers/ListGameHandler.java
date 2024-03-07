@@ -4,6 +4,7 @@ import model.GameData;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ public class ListGameHandler extends ParentHandler{
         catch (RuntimeException exception){
             this.parseException(exception, res);
             gsonString = gson.toJson(responseMap);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         return gsonString;

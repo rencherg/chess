@@ -1,6 +1,7 @@
 package server.handlers;
 
 import com.google.gson.JsonObject;
+import dataAccess.DataAccessException;
 import model.AuthData;
 import spark.Request;
 import spark.Response;
@@ -33,6 +34,8 @@ public class LoginHandler extends ParentHandler {
         catch (RuntimeException exception){
             this.parseException(exception, res);
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 

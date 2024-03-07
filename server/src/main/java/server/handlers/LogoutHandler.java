@@ -1,7 +1,10 @@
 package server.handlers;
 
+import dataAccess.DataAccessException;
 import spark.Request;
 import spark.Response;
+
+import java.sql.SQLException;
 
 public class LogoutHandler extends ParentHandler {
 
@@ -21,6 +24,10 @@ public class LogoutHandler extends ParentHandler {
         }
         catch (RuntimeException exception){
             this.parseException(exception, res);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
 
         gsonString = gson.toJson(responseMap);
