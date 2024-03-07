@@ -83,7 +83,7 @@ public class DatabaseManager {
             var statementUse = "USE " + databaseName;
             var userTableStatement = "CREATE TABLE IF NOT EXISTS user_data (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), email VARCHAR(255))";
             var authTableStatement = "CREATE TABLE IF NOT EXISTS auth_data (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, username VARCHAR(255), token VARCHAR(255))";
-            var gameTableStatement = "CREATE TABLE IF NOT EXISTS game_data (id INT AUTO_INCREMENT PRIMARY KEY, black_id INT, white_id INT, game_name VARCHAR(255), game_data VARCHAR(255))";
+            var gameTableStatement = "CREATE TABLE IF NOT EXISTS game_data (id INT AUTO_INCREMENT PRIMARY KEY, black_username INT, white_username INT, game_name VARCHAR(255), game_data VARCHAR(3000))";
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             try (var preparedStatement = conn.prepareStatement(statementUse)) {
                 preparedStatement.executeUpdate();

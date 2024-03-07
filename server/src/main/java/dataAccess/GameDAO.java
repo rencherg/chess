@@ -14,7 +14,7 @@ public interface GameDAO {
 
     public GameData[] listGames() throws SQLException;
 
-    public GameData updateGame(ChessGame game, int gameID) throws SQLException;
+    public GameData updateGame(GameData gameData) throws SQLException;
 
     default int getUniqueID() throws SQLException {
 

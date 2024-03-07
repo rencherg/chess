@@ -4,10 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class SQLGameDAO implements GameDAO{
 
@@ -15,11 +12,12 @@ public class SQLGameDAO implements GameDAO{
 
     public GameData createGame(ChessGame game, String blackUsername, String whiteUsername, String gameName) throws SQLException {
 
-        GameData foundData = null;
+        GameData returnData = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
-        ResultSet resultSet = null;
         String jsonString = gson.toJson(game);
+        int generatedId;
+        ResultSet resultSet = null;
 
         try {
 
@@ -33,16 +31,17 @@ public class SQLGameDAO implements GameDAO{
                     ")\n" +
                     "VALUES\n" +
                     "(?, ?, ?, ?);";
-            myPreparedStatement = myConnection.prepareStatement(sqlQuery);
+            myPreparedStatement = myConnection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             myPreparedStatement.setString(1, whiteUsername);
             myPreparedStatement.setString(2, blackUsername);
             myPreparedStatement.setString(3, gameName);
             myPreparedStatement.setString(4, jsonString);
-            resultSet = myPreparedStatement.executeQuery();
+            myPreparedStatement.executeUpdate();
 
-            while (resultSet.next()) {
-                ChessGame gameFromDB = gson.fromJson(resultSet.getString("game_data"), ChessGame.class);
-                foundData = new GameData(resultSet.getInt("id"), resultSet.getString("black_username"), resultSet.getString("white_username"), resultSet.getString("game_name"), gameFromDB);
+            resultSet = myPreparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                generatedId = resultSet.getInt(1);
+                returnData = new GameData(generatedId, blackUsername, whiteUsername, gameName, game);
             }
 
         } catch (SQLException | DataAccessException e) {
@@ -53,9 +52,8 @@ public class SQLGameDAO implements GameDAO{
             }
             myPreparedStatement.close();
             myConnection.close();
-
-            return foundData;
         }
+        return returnData;
     }
 
     public GameData getGame(int gameID) throws SQLException {
@@ -68,12 +66,12 @@ public class SQLGameDAO implements GameDAO{
         try {
 
             myConnection = DatabaseManager.getConnection();
-            String sqlQuery = "SELECT * FROM game_data WHERE game_id = ?;";
+            String sqlQuery = "SELECT * FROM game_data WHERE id = ?;";
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
             myPreparedStatement.setString(1, String.valueOf(gameID));
             resultSet = myPreparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 ChessGame game = gson.fromJson(resultSet.getString("game_data"), ChessGame.class);
                 foundData = new GameData(resultSet.getInt("id"), resultSet.getString("black_username"), resultSet.getString("white_username"), resultSet.getString("game_name"), game);
             }
@@ -93,6 +91,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     public GameData[] listGames() throws SQLException {
+
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         ResultSet resultSet = null;
@@ -126,29 +125,33 @@ public class SQLGameDAO implements GameDAO{
         return gameDataArray;
     }
 
-    public GameData updateGame(ChessGame game, int gameID) throws SQLException {
+    public GameData updateGame(GameData gameData) throws SQLException {
 
-        GameData foundData = null;
+        if(this.getGame(gameData.getGameID()) == null){
+            return null;
+        }
+
+        GameData returnData = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         ResultSet resultSet = null;
-        String jsonString = gson.toJson(game);
+        String jsonString = gson.toJson(gameData.getGame());
+        int id;
 
         try {
 
             myConnection = DatabaseManager.getConnection();
             String sqlQuery = "UPDATE game_data\n" +
-                    "    SET game_data = ?\n" +
-                    "    WHERE id = ?;";
+                    "SET game_data = ?, black_username = ?, white_username = ? \n" +
+                    "WHERE id = ?";
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
-            myPreparedStatement.setString(1, sqlQuery);
-            myPreparedStatement.setString(2, String.valueOf(gameID));
-            resultSet = myPreparedStatement.executeQuery();
+            myPreparedStatement.setString(1, jsonString);
+            myPreparedStatement.setString(2, gameData.getBlackUsername());
+            myPreparedStatement.setString(3, gameData.getWhiteUsername());
+            myPreparedStatement.setString(4, String.valueOf(gameData.getGameID()));
+            myPreparedStatement.execute();
 
-            while (resultSet.next()) {
-                ChessGame gameFromDB = gson.fromJson(resultSet.getString("game_data"), ChessGame.class);
-                foundData = new GameData(resultSet.getInt("id"), resultSet.getString("black_username"), resultSet.getString("white_username"), resultSet.getString("game_name"), gameFromDB);
-            }
+            returnData = gameData;
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
@@ -159,7 +162,12 @@ public class SQLGameDAO implements GameDAO{
             myPreparedStatement.close();
             myConnection.close();
 
-            return foundData;
         }
+        return returnData;
     }
 }
+
+
+//    UPDATE game_data
+//    SET game_data = 'test', SET black_username = 'new', SET white_username = 'new'
+//        WHERE id = 24

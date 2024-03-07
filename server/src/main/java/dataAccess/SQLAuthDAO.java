@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO{
 
-    public AuthData createAuth(String username) throws SQLException {
+    public AuthData createAuth(String username) throws SQLException, DataAccessException {
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -38,9 +38,8 @@ public class SQLAuthDAO implements AuthDAO{
             myPreparedStatement.setString(1, username);
             myPreparedStatement.setString(2, token);
             myPreparedStatement.setString(3, userID);
-            if(myPreparedStatement.execute()){
-                authData = new AuthData(token, username);
-            }
+            myPreparedStatement.execute();
+            authData = new AuthData(token, username);
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
@@ -52,12 +51,17 @@ public class SQLAuthDAO implements AuthDAO{
             if(myConnection != null){
                 myConnection.close();
             }
-            return authData;
-
         }
+        return authData;
     }
 
-    public boolean deleteAuth(String authToken) throws SQLException {
+    public boolean deleteAuth(String authToken) throws SQLException, DataAccessException {
+
+        boolean success = false;
+
+        if(DatabaseManager.rowCount("auth_data") == 0){
+            return false;
+        }
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -65,16 +69,16 @@ public class SQLAuthDAO implements AuthDAO{
         try {
 
             myConnection = DatabaseManager.getConnection();
-            String sqlQuery = "DELETE * FROM auth_data WHERE token = ?;";
+            String sqlQuery = "DELETE FROM auth_data WHERE token = ?;";
             myPreparedStatement = myConnection.prepareStatement(sqlQuery);
             myPreparedStatement.setString(1, authToken);
-            myPreparedStatement.executeQuery();
+            myPreparedStatement.execute();
 
-            return true;
+            success = true;
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
-            return false;
+            throw(e);
         } finally{
             if(myPreparedStatement!= null){
                 myPreparedStatement.close();
@@ -84,10 +88,15 @@ public class SQLAuthDAO implements AuthDAO{
             }
 
         }
+        return success;
 
     }
 
     public AuthData getAuth(String authToken) throws SQLException {
+
+        if(DatabaseManager.rowCount("auth_data") == 0){
+            return null;
+        }
 
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
@@ -103,7 +112,7 @@ public class SQLAuthDAO implements AuthDAO{
             myPreparedStatement.setString(1, authToken);
             resultSet = myPreparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            if(resultSet.next()){
                 foundData = new AuthData(resultSet.getString("token"), resultSet.getString("username"));
             }
 

@@ -25,8 +25,9 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(1, username);
             resultSet = myPreparedStatement.executeQuery();
 
-            resultSet.next();
-            foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
+            if(resultSet.next()){
+                foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
+            }
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
@@ -42,13 +43,13 @@ public class SQLUserDAO implements UserDAO {
     }
 
     //for internal package use
-    static String getUserID(String username) throws SQLException {
+    static String getUserID(String username) throws SQLException, DataAccessException {
 
         if(DatabaseManager.rowCount("user_data") == 0){
             return null;
         }
 
-        UserData foundData = null;
+        String foundId = null;
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         ResultSet resultSet = null;
@@ -61,12 +62,13 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(1, username);
             resultSet = myPreparedStatement.executeQuery();
 
-            if(resultSet.next()) {
-                return resultSet.getString("id");
+            if(resultSet.next()){
+                foundId = resultSet.getString("id");
             }
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();
+            throw(e);
         } finally{
             if(resultSet != null){
                 resultSet.close();
@@ -74,8 +76,8 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.close();
             myConnection.close();
 
-            return null;
         }
+        return foundId;
     }
 
     //Checks if username and password are correct
@@ -99,7 +101,7 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(2, password);
             resultSet = myPreparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            if(resultSet.next()) {
                 foundData = new UserData(resultSet.getString("username"), resultSet.getString("password"), resultSet.getString("email"));
             }
 
@@ -122,6 +124,11 @@ public class SQLUserDAO implements UserDAO {
 
     public UserData createUser(UserData user) throws SQLException {
 
+        //Reject if user already exists
+        if(this.getUser(user.getUsername()) != null){
+            throw new RuntimeException("Error: User already exists");
+        }
+
         Connection myConnection = null;
         PreparedStatement myPreparedStatement = null;
         boolean wasSuccesful = false;
@@ -141,7 +148,8 @@ public class SQLUserDAO implements UserDAO {
             myPreparedStatement.setString(1, user.getUsername());
             myPreparedStatement.setString(2, user.getPassword());
             myPreparedStatement.setString(3, user.getEmail());
-            wasSuccesful = myPreparedStatement.execute();
+            myPreparedStatement.execute();
+            wasSuccesful = true;
 
         } catch (SQLException | DataAccessException e) {
             e.printStackTrace();

@@ -6,13 +6,13 @@ CREATE TABLE game_data (
     black_username VARCHAR(255),
     white_username VARCHAR(255),
     game_name VARCHAR(255),
-    game_data VARCHAR(255)
+    game_data VARCHAR(3000)
 );
 
 INSERT INTO game_data
 (
-    white_username,
     black_username,
+    white_username,
     game_name,
     game_data
 )

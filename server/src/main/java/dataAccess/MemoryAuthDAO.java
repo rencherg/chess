@@ -9,30 +9,6 @@ import java.security.SecureRandom;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    public MemoryAuthDAO() {
-
-    }
-
-    //Generates a unique token
-//    private String getUniqueToken(){
-//
-//        SecureRandom random = new SecureRandom();
-//        byte bytes[] = new byte[20];
-//        String token = "";
-//
-//        boolean foundValidToken = false;
-//
-//        while(foundValidToken == false){
-//            random.nextBytes(bytes);
-//            token = bytes.toString();
-//            if(this.getAuth(token) == null){
-//                foundValidToken = true;
-//            }
-//        }
-//
-//        return token;
-//    }
-
     public AuthData createAuth(String username) throws SQLException {
 
         AuthData authData = new AuthData(this.getUniqueToken(), username);

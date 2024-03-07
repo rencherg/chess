@@ -47,9 +47,9 @@ public class MemoryGameDAO implements GameDAO {
         return gameDataArray;
     }
 
-    public GameData updateGame(ChessGame game, int gameID){
-        GameData gameData = this.getGame(gameID);
-        gameData.setGame(game);
+    public GameData updateGame(GameData gameData){
+        GameData foundGameData = this.getGame(gameData.getGameID());
+        foundGameData.setGame(gameData.getGame());
         return gameData;
     }
 }
