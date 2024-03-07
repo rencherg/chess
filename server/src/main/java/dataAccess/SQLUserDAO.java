@@ -33,7 +33,6 @@ public class SQLUserDAO implements UserDAO {
             }
 
         } catch (SQLException | DataAccessException e) {
-            e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
         } finally{
             if(resultSet != null){
@@ -71,7 +70,6 @@ public class SQLUserDAO implements UserDAO {
             }
 
         } catch (SQLException | DataAccessException e) {
-            e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
         } finally{
             if(resultSet != null){
@@ -101,7 +99,6 @@ public class SQLUserDAO implements UserDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
         }
         return foundData;
@@ -140,7 +137,6 @@ public class SQLUserDAO implements UserDAO {
             wasSuccesful = true;
 
         } catch (SQLException | DataAccessException e) {
-            e.printStackTrace();
             throw(new RuntimeException("Error: bad SQL query"));
         } finally{
 
