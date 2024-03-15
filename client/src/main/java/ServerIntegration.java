@@ -15,7 +15,7 @@ public class ServerIntegration {
         DELETE
     }
 
-    public HttpURLConnection restGetRequest(String urlString, RestMethod method, String token, String body) throws IOException {
+    public HttpURLConnection restRequest(String urlString, RestMethod method, String token, String body) throws IOException {
         URL url = new URL(urlString);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -53,6 +53,9 @@ public class ServerIntegration {
     }
 
     public String register(String username, String password, String email){
+
+//        HttpURLConnection connection = restRequest();
+
         return "token";
     }
 

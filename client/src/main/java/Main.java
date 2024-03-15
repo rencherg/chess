@@ -16,11 +16,11 @@ public class Main {
         System.out.println("♕ 240 Chess Client: " + piece);
 //        myPrint.printBoard(chessBoard);
 
-        try{
-            serverIntegration.restGetRequest("https://yesno.wtf/api", ServerIntegration.RestMethod.GET, null, null);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            serverIntegration.restGetRequest("https://yesno.wtf/api", ServerIntegration.RestMethod.GET, null, null);
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
 
     }
 }
