@@ -46,6 +46,8 @@ public class GameService {
             throw new RuntimeException("Error: unauthorized");
         } else if(gameData == null) {
             throw new RuntimeException("Error: bad request");
+
+        //game observer
         }else if(clientColor == null){
             return true;
         }else if(((clientColor.equals("BLACK")) && (gameData.getBlackUsername()!=null) || ((clientColor.equals("WHITE")) && (gameData.getWhiteUsername()!=null)))){
