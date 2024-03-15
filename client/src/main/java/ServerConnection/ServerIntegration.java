@@ -1,3 +1,5 @@
+package ServerConnection;
+
 import chess.ChessGame;
 
 import java.io.*;
@@ -54,7 +56,7 @@ public class ServerIntegration {
 
     public String register(String username, String password, String email){
 
-//        HttpURLConnection connection = restRequest();
+
 
         return "token";
     }

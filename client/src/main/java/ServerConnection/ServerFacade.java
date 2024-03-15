@@ -1,3 +1,5 @@
+package ServerConnection;
+
 import chess.ChessGame;
 
 public class ServerFacade {

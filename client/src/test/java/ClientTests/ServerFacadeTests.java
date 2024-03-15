@@ -1,5 +1,6 @@
 package ClientTests;
 
+import ServerConnection.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -23,7 +24,6 @@ public class ServerFacadeTests {
 
     @Test
     public void sampleTest() {
-        ServerFacade
     }
 
 }

@@ -1,3 +1,4 @@
+import ServerConnection.ServerIntegration;
 import chess.*;
 import ui.PrintBoard;
 
@@ -17,7 +18,7 @@ public class Main {
 //        myPrint.printBoard(chessBoard);
 
 //        try{
-//            serverIntegration.restGetRequest("https://yesno.wtf/api", ServerIntegration.RestMethod.GET, null, null);
+//            serverIntegration.restGetRequest("https://yesno.wtf/api", ServerConnection.ServerIntegration.RestMethod.GET, null, null);
 //        }catch(Exception e){
 //            e.printStackTrace();
 //        }
