@@ -3,10 +3,13 @@ import chess.*;
 import ui.PrintBoard;
 
 public class Main {
+
+    CryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     public static void main(String[] args) {
 
         PrintBoard myPrint = new PrintBoard();
-        ServerIntegration serverIntegration = new ServerIntegration();
+        ServerIntegration serverIntegration = new ServerIntegration(8080);
 
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.resetBoard();

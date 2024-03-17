@@ -2,13 +2,28 @@ package ServerConnection;
 
 import chess.ChessGame;
 
+import java.io.IOException;
+
 public class ServerFacade {
 
-    ServerIntegration serverIntegration = new ServerIntegration();
+    ServerIntegration serverIntegration;
+
+    public ServerFacade(int port){
+        serverIntegration = new ServerIntegration(port);
+    }
 
     public String register(String username, String password, String email){
 
         return serverIntegration.register(username, password, email);
+
+
+//        try {
+//            return serverIntegration.register(username, password, email);
+//        } catch (IOException e) {
+//            System.out.println("An Error occured with registration");
+//            System.out.println(e.getMessage());
+//            return null;
+//        }
     }
 
     public String login(String username, String password){
