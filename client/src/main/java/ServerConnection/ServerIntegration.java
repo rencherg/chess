@@ -100,6 +100,7 @@ public class ServerIntegration {
 
         }catch(IOException e){
             System.out.println("error with register");
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }finally {
             if(connection!= null){

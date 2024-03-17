@@ -4,7 +4,7 @@ import ui.PrintBoard;
 
 public class Main {
 
-    CryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+//    CryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public static void main(String[] args) {
 

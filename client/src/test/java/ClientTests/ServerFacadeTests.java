@@ -28,49 +28,41 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-    @Test
-    @DisplayName("dpr")
-    public void registerCallTest() {
-        String urlString = "http://localhost:8080/user";
-        String jsonBody = "{\"username\":\"big boy\",\"password\":\"password\",\"email\":\"rencher.grant@gmail.com\"}";
-
-        try {
-            // Create URL object
-            URL url = new URL(urlString);
-
-            // Create HttpURLConnection object
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            // Set request method
-            connection.setRequestMethod("POST");
-
-            // Set request headers
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            // Enable output
-            connection.setDoOutput(true);
-
-            // Write the request body to the connection
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            // Get response code
-            int responseCode = connection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
-
-            // Close the connection
-            connection.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    @DisplayName("dpr")
+//    public void registerCallTest() {
+//        String urlString = "http://localhost:8080/user";
+//        String jsonBody = "{\"username\":\"big boy\",\"password\":\"password\",\"email\":\"rencher.grant@gmail.com\"}";
+//
+//        try {
+//            URL url = new URL(urlString);
+//
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//
+//            connection.setRequestMethod("POST");
+//
+//            connection.setRequestProperty("Content-Type", "application/json");
+//
+//            connection.setDoOutput(true);
+//
+//            try (OutputStream os = connection.getOutputStream()) {
+//                byte[] input = jsonBody.getBytes("utf-8");
+//                os.write(input, 0, input.length);
+//            }
+//
+//            int responseCode = connection.getResponseCode();
+//            System.out.println("Response Code: " + responseCode);
+//
+//            connection.disconnect();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Test
     @DisplayName("register positive")
     public void sampleTest() {
-        String token = this.serverFacade.register("big boy", "password", "rencher.grant@gmail.com");
+        String token = this.serverFacade.register("big mayor", "password", "rencher.grant@gmail.com");
         Assertions.assertNull(token);
     }
 
