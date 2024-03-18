@@ -27,86 +27,88 @@ public class ServerIntegration {
         DELETE
     }
 
-    public HttpURLConnection restRequest(String urlString, RestMethod method, String token, String body) throws IOException {
-        URL url = new URL(urlString);
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod(method.toString());
-
-
-        // Set HTTP request headers, if necessary
-        // connection.addRequestProperty("Accept", "text/html");
-        if(token != null){
-            connection.addRequestProperty("Authorization", token);
-        }
-
-        if(body != null){
-            connection.setRequestProperty("Content-Type", "application/json");
-        }
-
-
-//        connection.connect();
-
-        // Enable output and set request body
-        if(body != null){
-            connection.setDoOutput(true);
-            String requestBody = "{\"key\":\"value\"}";
-
-            // Write the request body to the connection
-            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-            outputStream.writeBytes(requestBody);
-            outputStream.flush();
-            outputStream.close();
-        }
-
-        return connection;
-    }
+//    public HttpURLConnection restRequest(String urlString, RestMethod method, String token, String body) throws IOException {
+//        URL url = new URL(urlString);
+//
+//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//
+//        connection.setReadTimeout(5000);
+//        connection.setRequestMethod(method.toString());
+//
+//
+//        // Set HTTP request headers, if necessary
+//        // connection.addRequestProperty("Accept", "text/html");
+//        if(token != null){
+//            connection.addRequestProperty("Authorization", token);
+//        }
+//
+//        if(body != null){
+//            connection.setRequestProperty("Content-Type", "application/json");
+//        }
+//
+//
+////        connection.connect();
+//
+//        // Enable output and set request body
+//        if(body != null){
+//            connection.setDoOutput(true);
+//            String requestBody = "{\"key\":\"value\"}";
+//
+//            // Write the request body to the connection
+//            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+//            outputStream.writeBytes(requestBody);
+//            outputStream.flush();
+//            outputStream.close();
+//        }
+//
+//        return connection;
+//    }
 
     public String register(String username, String password, String email){
 
+        String urlString = "http://localhost:8080/user";
+        String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"email\":\"" + email + "\"}";
         String token = null;
-        HttpURLConnection connection = null;
 
-        try{
+        try {
 
-            String urlString = "http://localhost:" + String.valueOf(port) + "/user";
+            URL url = new URL(urlString);
 
-            Map<String, String> jsonData = new HashMap<>();
-            jsonData.put("email", email);
-            jsonData.put("password", password);
-            jsonData.put("username", username);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            String jsonBody = gson.toJson(jsonData);
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("POST");
 
-            System.out.println(jsonBody);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.addRequestProperty("Authorization", token);
 
-            connection = this.restRequest(urlString, RestMethod.POST, null, jsonBody);
+            connection.setDoOutput(true);
 
-            InputStream test2 = connection.getInputStream();
-            InputStreamReader test = new InputStreamReader(test2);
-            BufferedReader in = new BufferedReader(test);
-            String inputLine;
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+
             StringBuilder responseBody = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                responseBody.append(inputLine);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBody.append(line);
+                }
             }
-            in.close();
 
-            JsonObject jsonResponse = gson.fromJson(responseBody.toString(), JsonObject.class);
+            String jsonString = responseBody.toString();
 
-            token = jsonResponse.get("token").getAsString();
+            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
-        }catch(IOException e){
-            System.out.println("error with register");
-            System.out.println(e.getMessage());
+            token = jsonObject.get("authToken").getAsString();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(connection!= null){
-                connection.disconnect();
-            }
-
         }
 
         return token;
@@ -117,6 +119,28 @@ public class ServerIntegration {
     }
 
     public void logout(String authToken){
+        String urlString = "http://localhost:8080/session";;
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("DELETE");
+
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            connection.setDoOutput(true);
+
+            int responseCode = connection.getResponseCode();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public int createGame(String authToken, String gameName){

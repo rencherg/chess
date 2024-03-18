@@ -16,14 +16,6 @@ public class ServerFacade {
 
         return serverIntegration.register(username, password, email);
 
-
-//        try {
-//            return serverIntegration.register(username, password, email);
-//        } catch (IOException e) {
-//            System.out.println("An Error occured with registration");
-//            System.out.println(e.getMessage());
-//            return null;
-//        }
     }
 
     public String login(String username, String password){

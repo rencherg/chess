@@ -4,8 +4,6 @@ import ui.PrintBoard;
 
 public class Main {
 
-//    CryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
     public static void main(String[] args) {
 
         PrintBoard myPrint = new PrintBoard();
@@ -13,8 +11,6 @@ public class Main {
 
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.resetBoard();
-
-
 
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);

@@ -4,6 +4,8 @@ import ServerConnection.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,42 +30,18 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-//    @Test
-//    @DisplayName("dpr")
-//    public void registerCallTest() {
-//        String urlString = "http://localhost:8080/user";
-//        String jsonBody = "{\"username\":\"big boy\",\"password\":\"password\",\"email\":\"rencher.grant@gmail.com\"}";
-//
-//        try {
-//            URL url = new URL(urlString);
-//
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//
-//            connection.setRequestMethod("POST");
-//
-//            connection.setRequestProperty("Content-Type", "application/json");
-//
-//            connection.setDoOutput(true);
-//
-//            try (OutputStream os = connection.getOutputStream()) {
-//                byte[] input = jsonBody.getBytes("utf-8");
-//                os.write(input, 0, input.length);
-//            }
-//
-//            int responseCode = connection.getResponseCode();
-//            System.out.println("Response Code: " + responseCode);
-//
-//            connection.disconnect();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     @Test
     @DisplayName("register positive")
-    public void sampleTest() {
-        String token = this.serverFacade.register("big mayor", "password", "rencher.grant@gmail.com");
-        Assertions.assertNull(token);
+    public void registerPositiveTest() {
+        String token = this.serverFacade.register("mr jones", "password", "rencher.grant@gmail.com");
+        Assertions.assertNotNull(token);
+    }
+
+    @Test
+    @DisplayName("Logout positive")
+    public void logoutPositiveTest() {
+        String token = this.serverFacade.register("big frank", "password", "rencher.grant@gmail.com");
+        this.serverFacade.logout(token);
     }
 
 }
