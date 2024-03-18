@@ -64,6 +64,29 @@ public class ServerIntegration {
 //        return connection;
 //    }
 
+    public void clearDb(){
+        String urlString = "http://localhost:8080/db";
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("DELETE");
+
+            connection.setDoOutput(true);
+
+            int responseCode = connection.getResponseCode();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String register(String username, String password, String email){
 
         String urlString = "http://localhost:8080/user";
@@ -80,7 +103,6 @@ public class ServerIntegration {
             connection.setRequestMethod("POST");
 
             connection.setRequestProperty("Content-Type", "application/json");
-            connection.addRequestProperty("Authorization", token);
 
             connection.setDoOutput(true);
 
@@ -115,11 +137,55 @@ public class ServerIntegration {
     }
 
     public String login(String username, String password){
-        return "token";
+        String urlString = "http://localhost:8080/session";
+        String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
+        String token = null;
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("POST");
+
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            connection.setDoOutput(true);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+
+            StringBuilder responseBody = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBody.append(line);
+                }
+            }
+
+            String jsonString = responseBody.toString();
+
+            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+            token = jsonObject.get("authToken").getAsString();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return token;
     }
 
     public void logout(String authToken){
-        String urlString = "http://localhost:8080/session";;
+        String urlString = "http://localhost:8080/session";
 
         try {
 
@@ -131,6 +197,7 @@ public class ServerIntegration {
             connection.setRequestMethod("DELETE");
 
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.addRequestProperty("Authorization", authToken);
 
             connection.setDoOutput(true);
 
@@ -144,8 +211,51 @@ public class ServerIntegration {
     }
 
     public int createGame(String authToken, String gameName){
-        //return game id
-        return 0;
+        String urlString = "http://localhost:8080/game";
+        String jsonBody = "{\"gameName\":\"" + gameName + "\"}";
+        int gameId = -1;
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("POST");
+
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            connection.setDoOutput(true);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+
+            StringBuilder responseBody = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBody.append(line);
+                }
+            }
+
+            String jsonString = responseBody.toString();
+
+            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+            gameId = jsonObject.get("gameID").getAsInt();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return gameId;
     }
 
     public ChessGame[] listGames(String authToken){

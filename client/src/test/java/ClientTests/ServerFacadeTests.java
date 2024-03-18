@@ -4,12 +4,6 @@ import ServerConnection.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 public class ServerFacadeTests {
 
     private static final int PORT = 8080;
@@ -30,18 +24,47 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @AfterEach
+//    @Test
+    public void clearDb(){
+        this.serverFacade.clearDb();
+    }
+
     @Test
     @DisplayName("register positive")
     public void registerPositiveTest() {
-        String token = this.serverFacade.register("mr jones", "password", "rencher.grant@gmail.com");
+        String token = this.serverFacade.register("fmulder", "TrustNo1", "fmulder@fbi.gov");
         Assertions.assertNotNull(token);
     }
 
     @Test
     @DisplayName("Logout positive")
     public void logoutPositiveTest() {
-        String token = this.serverFacade.register("big frank", "password", "rencher.grant@gmail.com");
+        String token = this.serverFacade.register("scully", "TrustNo1", "dscully@fbi.gov");
         this.serverFacade.logout(token);
+    }
+
+    @Test
+    @DisplayName("Login Positive")
+    public void loginPositive(){
+        String username = "skinner";
+        String password = "TrustNo1";
+        String email = "wskinner@fbi.gov";
+        String token = this.serverFacade.register(username, password, email);
+        this.serverFacade.logout(token);
+        token = this.serverFacade.login(username, password);
+        Assertions.assertNotNull(token);
+    }
+
+    @Test
+    @DisplayName("Create Game Positive")
+    public void createGamePositive(){
+        String username = "rencherg";
+        String password = "password";
+        String email = "rencher.grant@gmail.com";
+        String token = this.serverFacade.register(username, password, email);
+        int gameId = this.serverFacade.createGame(token, "my game");
+        Assertions.assertNotEquals(gameId, -1);
     }
 
 }

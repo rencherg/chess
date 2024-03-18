@@ -39,4 +39,8 @@ public class ServerFacade {
         return serverIntegration.joinGame(authToken, clientColor, gameID);
     }
 
+    public void clearDb(){
+        serverIntegration.clearDb();
+    }
+
 }
