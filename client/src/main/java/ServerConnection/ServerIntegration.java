@@ -11,10 +11,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServerIntegration {
 
@@ -295,20 +292,19 @@ public class ServerIntegration {
 
             JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
-            System.out.println(jsonObject);
+            JsonElement jsonElement = jsonObject.get("games");
+            JsonArray responseArray = jsonElement.getAsJsonArray();
 
-            JsonElement jsonObject2 = jsonObject.get("games");
+            gameList = new ChessGame[responseArray.size()];
 
-            ChessGame games = gson.fromJson(jsonString, ChessGame.class);
+            Iterator<JsonElement> myIterator = responseArray.iterator();
 
-            // Access the deserialized objects
-//            for (ChessGame chessGame : jsonObject2) {
-//                System.out.println(games);
-//            }
+            int index = 0;
 
-
-
-//            List<ChessGame> outputList = gson.fromJson(jsonString, ArrayList.class);
+            while(myIterator.hasNext()){
+                gameList[index] = gson.fromJson(myIterator.next(), ChessGame.class);
+                index++;
+            }
 
             connection.disconnect();
 
@@ -321,5 +317,34 @@ public class ServerIntegration {
 
     public void joinGame(String authToken, String clientColor, int gameID){
 
+        String urlString = "http://localhost:8080/game";
+        String jsonBody = "{\"playerColor\":\"" + clientColor + "\",\"gameID\":\"" + String.valueOf(gameID) + "\"}";
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("PUT");
+
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.addRequestProperty("Authorization", authToken);
+
+            connection.setDoOutput(true);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

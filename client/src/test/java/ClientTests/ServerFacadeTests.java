@@ -25,11 +25,11 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-    @AfterEach
-    @Test
-    public void clearDb(){
-        this.serverFacade.clearDb();
-    }
+//    @AfterEach
+//    @Test
+//    public void clearDb(){
+//        this.serverFacade.clearDb();
+//    }
 
     @Test
     @DisplayName("register positive")
@@ -79,7 +79,24 @@ public class ServerFacadeTests {
         int gameId2 = this.serverFacade.createGame(token, "my game 2");
         int gameId3 = this.serverFacade.createGame(token, "my game 3");
         ChessGame[] gameList = this.serverFacade.listGames(token);
-        System.out.println("r");
+        Assertions.assertEquals(3, gameList.length);
+    }
+
+    @Test
+    @DisplayName("Join Game Positice")
+    public void joinGamePositive(){
+        String username = "rencherg";
+        String password = "password";
+        String email = "rencher.grant@gmail.com";
+        String token = this.serverFacade.register(username, password, email);
+        int gameId1 = this.serverFacade.createGame(token, "my game");
+        this.serverFacade.joinGame(token, "WHITE", gameId1);
     }
 
 }
+
+//Todo:
+
+//exception handling
+//rest of tests
+//front end stuff
