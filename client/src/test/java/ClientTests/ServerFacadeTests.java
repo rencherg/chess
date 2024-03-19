@@ -28,6 +28,7 @@ public class ServerFacadeTests {
     }
 
     @AfterEach
+    @Test
     @DisplayName("Clear DB")
     public void clearDb(){
         this.serverFacade.clearDb();

@@ -22,6 +22,26 @@ public class ChessGame {
     private ChessMove lastMove;
     private ChessPiece lastMoveDestinationPiece;
 
+    //For phase 5 only
+    private int gameID;
+    private String gameName;
+
+    public int getGameId() {
+        return gameID;
+    }
+
+    public void setGameId(int gameId) {
+        this.gameID = gameId;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
     public ChessGame() {
 
         board = new ChessBoard();

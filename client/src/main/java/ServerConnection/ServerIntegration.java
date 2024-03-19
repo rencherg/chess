@@ -291,7 +291,8 @@ public class ServerIntegration {
             int index = 0;
 
             while(myIterator.hasNext()){
-                gameList[index] = gson.fromJson(myIterator.next(), ChessGame.class);
+                JsonObject chessGameElement = myIterator.next().getAsJsonObject();
+                gameList[index] = gson.fromJson(chessGameElement, ChessGame.class);
                 index++;
             }
 
