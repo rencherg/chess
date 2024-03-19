@@ -25,6 +25,24 @@ public class ChessGame {
     //For phase 5 only
     private int gameID;
     private String gameName;
+    private String whiteUsername;
+    private String blackUsername;
+
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    public void setWhiteUsername(String whiteUsername) {
+        this.whiteUsername = whiteUsername;
+    }
+
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    public void setBlackUsername(String blackUsername) {
+        this.blackUsername = blackUsername;
+    }
 
     public int getGameId() {
         return gameID;
