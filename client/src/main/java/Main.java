@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
 
         PrintBoard myPrint = new PrintBoard();
-        ServerIntegration serverIntegration = new ServerIntegration(8080);
+        ServerIntegration serverIntegration = new ServerIntegration("8080");
 
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.resetBoard();

@@ -15,10 +15,10 @@ import java.util.*;
 
 public class ServerIntegration {
 
-    private int port;
+    private String port;
     Gson gson = new Gson();
 
-    public ServerIntegration(int port) {
+    public ServerIntegration(String port) {
         this.port = port;
     }
 
@@ -29,45 +29,8 @@ public class ServerIntegration {
         DELETE
     }
 
-//    public HttpURLConnection restRequest(String urlString, RestMethod method, String token, String body) throws IOException {
-//        URL url = new URL(urlString);
-//
-//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//
-//        connection.setReadTimeout(5000);
-//        connection.setRequestMethod(method.toString());
-//
-//
-//        // Set HTTP request headers, if necessary
-//        // connection.addRequestProperty("Accept", "text/html");
-//        if(token != null){
-//            connection.addRequestProperty("Authorization", token);
-//        }
-//
-//        if(body != null){
-//            connection.setRequestProperty("Content-Type", "application/json");
-//        }
-//
-//
-////        connection.connect();
-//
-//        // Enable output and set request body
-//        if(body != null){
-//            connection.setDoOutput(true);
-//            String requestBody = "{\"key\":\"value\"}";
-//
-//            // Write the request body to the connection
-//            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-//            outputStream.writeBytes(requestBody);
-//            outputStream.flush();
-//            outputStream.close();
-//        }
-//
-//        return connection;
-//    }
-
     public void clearDb() {
-        String urlString = "http://localhost:8080/db";
+        String urlString = "http://localhost:" + this.port + "/db";
 
         try {
 
@@ -91,7 +54,7 @@ public class ServerIntegration {
 
     public String register(String username, String password, String email) {
 
-        String urlString = "http://localhost:8080/user";
+        String urlString = "http://localhost:" + this.port + "/user";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"email\":\"" + email + "\"}";
         String token = null;
 
@@ -115,6 +78,10 @@ public class ServerIntegration {
 
             int responseCode = connection.getResponseCode();
 
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
             StringBuilder responseBody = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
@@ -132,14 +99,14 @@ public class ServerIntegration {
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Register failed");
         }
 
         return token;
     }
 
     public String login(String username, String password) {
-        String urlString = "http://localhost:8080/session";
+        String urlString = "http://localhost:" + this.port + "/session";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
         String token = null;
 
@@ -163,6 +130,14 @@ public class ServerIntegration {
 
             int responseCode = connection.getResponseCode();
 
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
             StringBuilder responseBody = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
@@ -180,14 +155,14 @@ public class ServerIntegration {
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("login failed");
         }
 
         return token;
     }
 
     public void logout(String authToken) {
-        String urlString = "http://localhost:8080/session";
+        String urlString = "http://localhost:" + this.port + "/session";
 
         try {
 
@@ -205,15 +180,19 @@ public class ServerIntegration {
 
             int responseCode = connection.getResponseCode();
 
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("logout failed");
         }
     }
 
     public int createGame(String authToken, String gameName) {
-        String urlString = "http://localhost:8080/game";
+        String urlString = "http://localhost:" + this.port + "/game";
         String jsonBody = "{\"gameName\":\"" + gameName + "\"}";
         int gameId = -1;
 
@@ -238,6 +217,10 @@ public class ServerIntegration {
 
             int responseCode = connection.getResponseCode();
 
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
             StringBuilder responseBody = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
@@ -255,7 +238,7 @@ public class ServerIntegration {
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("create game failed");
         }
 
         return gameId;
@@ -265,7 +248,7 @@ public class ServerIntegration {
 
         ChessGame[] gameList = null;
 
-        String urlString = "http://localhost:8080/game";
+        String urlString = "http://localhost:" + this.port + "/game";
 
         try {
 
@@ -286,6 +269,12 @@ public class ServerIntegration {
                 while ((line = reader.readLine()) != null) {
                     responseBody.append(line);
                 }
+            }
+
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode > 399){
+                throw new RuntimeException();
             }
 
             String jsonString = responseBody.toString();
@@ -309,7 +298,7 @@ public class ServerIntegration {
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("list games failed");
         }
 
         return gameList;
@@ -317,7 +306,7 @@ public class ServerIntegration {
 
     public void joinGame(String authToken, String clientColor, int gameID){
 
-        String urlString = "http://localhost:8080/game";
+        String urlString = "http://localhost:" + this.port + "/game";
         String jsonBody = "{\"playerColor\":\"" + clientColor + "\",\"gameID\":\"" + String.valueOf(gameID) + "\"}";
 
         try {
@@ -341,10 +330,14 @@ public class ServerIntegration {
 
             int responseCode = connection.getResponseCode();
 
+            if (responseCode > 399){
+                throw new RuntimeException();
+            }
+
             connection.disconnect();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("join game failed");
         }
     }
 }

@@ -8,7 +8,7 @@ public class ServerFacade {
 
     ServerIntegration serverIntegration;
 
-    public ServerFacade(int port){
+    public ServerFacade(String port){
         serverIntegration = new ServerIntegration(port);
     }
 

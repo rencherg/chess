@@ -9,7 +9,7 @@ public class ServerFacadeTests {
 
     private static final int PORT = 8080;
 
-    ServerFacade serverFacade = new ServerFacade(PORT);
+    ServerFacade serverFacade = new ServerFacade(String.valueOf(PORT));
 
     private static Server server;
 
@@ -25,11 +25,11 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-//    @AfterEach
-//    @Test
-//    public void clearDb(){
-//        this.serverFacade.clearDb();
-//    }
+    @AfterEach
+    @Test
+    public void clearDb(){
+        this.serverFacade.clearDb();
+    }
 
     @Test
     @DisplayName("register positive")
@@ -83,7 +83,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @DisplayName("Join Game Positice")
+    @DisplayName("Join Game Positive")
     public void joinGamePositive(){
         String username = "rencherg";
         String password = "password";
@@ -100,3 +100,4 @@ public class ServerFacadeTests {
 //exception handling
 //rest of tests
 //front end stuff
+//Port stuff
