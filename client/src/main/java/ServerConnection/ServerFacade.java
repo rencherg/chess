@@ -35,8 +35,8 @@ public class ServerFacade {
         return serverIntegration.listGames(authToken);
     }
 
-    public boolean joinGame(String authToken, String clientColor, int gameID){
-        return serverIntegration.joinGame(authToken, clientColor, gameID);
+    public void joinGame(String authToken, String clientColor, int gameID){
+        serverIntegration.joinGame(authToken, clientColor, gameID);
     }
 
     public void clearDb(){

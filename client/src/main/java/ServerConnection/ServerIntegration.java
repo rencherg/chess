@@ -2,11 +2,16 @@ package ServerConnection;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +21,7 @@ public class ServerIntegration {
     private int port;
     Gson gson = new Gson();
 
-    public ServerIntegration(int port){
+    public ServerIntegration(int port) {
         this.port = port;
     }
 
@@ -64,7 +69,7 @@ public class ServerIntegration {
 //        return connection;
 //    }
 
-    public void clearDb(){
+    public void clearDb() {
         String urlString = "http://localhost:8080/db";
 
         try {
@@ -87,7 +92,7 @@ public class ServerIntegration {
         }
     }
 
-    public String register(String username, String password, String email){
+    public String register(String username, String password, String email) {
 
         String urlString = "http://localhost:8080/user";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"email\":\"" + email + "\"}";
@@ -136,7 +141,7 @@ public class ServerIntegration {
         return token;
     }
 
-    public String login(String username, String password){
+    public String login(String username, String password) {
         String urlString = "http://localhost:8080/session";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
         String token = null;
@@ -184,7 +189,7 @@ public class ServerIntegration {
         return token;
     }
 
-    public void logout(String authToken){
+    public void logout(String authToken) {
         String urlString = "http://localhost:8080/session";
 
         try {
@@ -210,7 +215,7 @@ public class ServerIntegration {
         }
     }
 
-    public int createGame(String authToken, String gameName){
+    public int createGame(String authToken, String gameName) {
         String urlString = "http://localhost:8080/game";
         String jsonBody = "{\"gameName\":\"" + gameName + "\"}";
         int gameId = -1;
@@ -225,6 +230,7 @@ public class ServerIntegration {
             connection.setRequestMethod("POST");
 
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.addRequestProperty("Authorization", authToken);
 
             connection.setDoOutput(true);
 
@@ -258,14 +264,62 @@ public class ServerIntegration {
         return gameId;
     }
 
-    public ChessGame[] listGames(String authToken){
+    public ChessGame[] listGames(String authToken) {
 
-        ChessGame[] gameList = new ChessGame[1];
+        ChessGame[] gameList = null;
+
+        String urlString = "http://localhost:8080/game";
+
+        try {
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("GET");
+
+            connection.addRequestProperty("Authorization", authToken);
+
+            connection.setDoOutput(true);
+
+            StringBuilder responseBody = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseBody.append(line);
+                }
+            }
+
+            String jsonString = responseBody.toString();
+
+            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+            System.out.println(jsonObject);
+
+            JsonElement jsonObject2 = jsonObject.get("games");
+
+            ChessGame games = gson.fromJson(jsonString, ChessGame.class);
+
+            // Access the deserialized objects
+//            for (ChessGame chessGame : jsonObject2) {
+//                System.out.println(games);
+//            }
+
+
+
+//            List<ChessGame> outputList = gson.fromJson(jsonString, ArrayList.class);
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return gameList;
     }
 
-    public boolean joinGame(String authToken, String clientColor, int gameID){
-        return true;
+    public void joinGame(String authToken, String clientColor, int gameID){
+
     }
 }

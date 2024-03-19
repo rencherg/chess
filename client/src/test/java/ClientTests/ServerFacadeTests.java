@@ -1,6 +1,7 @@
 package ClientTests;
 
 import ServerConnection.ServerFacade;
+import chess.ChessGame;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -25,7 +26,7 @@ public class ServerFacadeTests {
     }
 
     @AfterEach
-//    @Test
+    @Test
     public void clearDb(){
         this.serverFacade.clearDb();
     }
@@ -65,6 +66,20 @@ public class ServerFacadeTests {
         String token = this.serverFacade.register(username, password, email);
         int gameId = this.serverFacade.createGame(token, "my game");
         Assertions.assertNotEquals(gameId, -1);
+    }
+
+    @Test
+    @DisplayName("List Games Positive")
+    public void listGamePositive(){
+        String username = "rencherg";
+        String password = "password";
+        String email = "rencher.grant@gmail.com";
+        String token = this.serverFacade.register(username, password, email);
+        int gameId1 = this.serverFacade.createGame(token, "my game");
+        int gameId2 = this.serverFacade.createGame(token, "my game 2");
+        int gameId3 = this.serverFacade.createGame(token, "my game 3");
+        ChessGame[] gameList = this.serverFacade.listGames(token);
+        System.out.println("r");
     }
 
 }
