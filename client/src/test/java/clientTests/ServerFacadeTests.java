@@ -11,15 +11,16 @@ public class ServerFacadeTests {
 
     private static final int PORT = 0;
 
-    ServerFacade serverFacade = new ServerFacade(String.valueOf(PORT));
+    static ServerFacade serverFacade;// = new ServerFacade(String.valueOf(PORT));
 
     private static Server server;
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(PORT);
+        var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        serverFacade = new ServerFacade(String.valueOf(port));
     }
 
     @AfterAll
