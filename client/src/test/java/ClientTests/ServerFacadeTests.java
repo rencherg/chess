@@ -209,9 +209,3 @@ public class ServerFacadeTests {
     }
 
 }
-
-//Todo:
-
-//rest of tests
-//front end stuff
-//Clean up code
