@@ -1,6 +1,5 @@
 package chess;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Watchable;
 import java.util.ArrayList;
@@ -271,7 +270,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(@NotNull TeamColor teamColor) {
+    public boolean isInCheck(TeamColor teamColor) {
 
         ChessPosition kingPosition = findKing(teamColor);
 
