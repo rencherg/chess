@@ -1,4 +1,4 @@
-package ClientTests;
+package clientTests;
 
 import ServerConnection.ServerFacade;
 import chess.ChessGame;
