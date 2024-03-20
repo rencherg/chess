@@ -1,12 +1,9 @@
-import ServerConnection.ServerIntegration;
 import chess.*;
 import ui.Menu;
-import ui.PrintBoard;
 
 public class Main {
 
     static final String PORT = "8080";
-
 
     public static void main(String[] args) throws InvalidMoveException {
 

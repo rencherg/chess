@@ -2,8 +2,6 @@ package ui;
 
 import ServerConnection.ServerFacade;
 import chess.ChessGame;
-import org.junit.jupiter.api.BeforeAll;
-import server.Server;
 
 import java.util.HashMap;
 import java.util.Map;
