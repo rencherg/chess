@@ -2,6 +2,8 @@ package ui;
 
 import ServerConnection.ServerFacade;
 import chess.ChessGame;
+import org.junit.jupiter.api.BeforeAll;
+import server.Server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +11,11 @@ import java.util.Scanner;
 
 public class Menu {
 
-    String port;
+    private final String PORT;
+//    private static final int PORT = 8080;
+    ServerFacade serverFacade;
+//    private static Server server = new Server();
     private Scanner scanner = new Scanner(System.in);
-    private ServerFacade serverFacade = new ServerFacade(port);
     private String authToken = null;
     private Map<Integer, ChessGame> gameMap = new HashMap<>();
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
@@ -43,7 +47,10 @@ public class Menu {
             "Join Observer - Joins an existing chess game only as an observer";
 
     public Menu(String port){
-        this.port = port;
+        this.PORT = port;
+        serverFacade = new ServerFacade(String.valueOf(PORT));
+//        var port = server.run(PORT);
+        System.out.println("Started test HTTP server on " + port);
     }
 
     private String getUserInput(){
@@ -52,6 +59,7 @@ public class Menu {
 
     public void runMenu(){
         loggedOutMenu();
+//        server.stop();
     }
 
     private void loggedOutMenu(){
