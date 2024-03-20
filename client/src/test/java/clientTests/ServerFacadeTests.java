@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ServerFacadeTests {
 
-    private static final int PORT = 8080;
+    private static final int PORT = 0;
 
     ServerFacade serverFacade = new ServerFacade(String.valueOf(PORT));
 
