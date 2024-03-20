@@ -17,7 +17,8 @@ public class Menu {
 //    private static Server server = new Server();
     private Scanner scanner = new Scanner(System.in);
     private String authToken = null;
-    private Map<Integer, ChessGame> gameMap = new HashMap<>();
+    private Map<String, ChessGame> gameMap = new HashMap<>();
+    private PrintBoard printBoard = new PrintBoard();
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
             "1 - Help\n" +
             "2 - Quit\n" +
@@ -58,13 +59,12 @@ public class Menu {
     }
 
     public void runMenu(){
+        System.out.println("Welcome to Chess!");
         loggedOutMenu();
 //        server.stop();
     }
 
     private void loggedOutMenu(){
-
-        System.out.println("Welcome to Chess!");
 
         boolean continueProgram = true;
 
@@ -90,6 +90,39 @@ public class Menu {
         }
     }
 
+    private void loggedInMenu(){
+        System.out.println("Logged In!");
+
+        boolean continueProgram = true;
+
+        String userInput;
+
+        while (continueProgram){
+            System.out.println(this.LOGGED_IN_MENU);
+            userInput = getUserInput();
+            switch(userInput){
+                case "1":
+                    System.out.println(this.LOGGED_IN_HELP_STRING);
+                    break;
+                case "2":
+                    continueProgram = false;
+                    break;
+                case "3":
+                    this.createGame();
+                    break;
+                case "4":
+                    this.listGames();
+                    break;
+                case "5":
+                    this.joinGame();
+                    break;
+                case "6":
+                    this.joinGameAsObserver();
+                    break;
+            }
+        }
+    }
+
     private void login(){
         System.out.println("Type your username");
         String username = this.getUserInput();
@@ -106,7 +139,7 @@ public class Menu {
 
     }
 
-    private void register(){
+    private void register() {
         System.out.println("Type your username");
         String username = this.getUserInput();
         System.out.println("Type your password");
@@ -114,18 +147,98 @@ public class Menu {
         System.out.println("Type your email");
         String email = this.getUserInput();
 
-        try{
+        try {
             String authToken = this.serverFacade.register(username, password, email);
             this.authToken = authToken;
             this.loggedInMenu();
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             System.out.println("Registration was unsuccessful");
         }
-
     }
 
-    private void loggedInMenu(){
-        System.out.println("Loggged in menu!");
+    private void createGame(){
+        System.out.println("Type the game name");
+        String gameName = this.getUserInput();
+        this.serverFacade.createGame(this.authToken, gameName);
+        System.out.println("Success!");
     }
 
+    private void listGames(){
+        ChessGame gameList[] = this.serverFacade.listGames(this.authToken);
+
+        String blackUsername = null;
+        String whiteUsername = null;
+        String gameName = null;
+
+        if(gameList.length == 0){
+            System.out.println("No games exist yet");
+        }
+
+        for(int i = 1; i <= gameList.length; i++){
+
+            gameName = gameList[i-1].getGameName();
+            whiteUsername = gameList[i-1].getWhiteUsername();
+            blackUsername = gameList[i-1].getBlackUsername();
+
+            if(blackUsername == null){
+                blackUsername = "Empty";
+            }
+
+            if(whiteUsername == null){
+                whiteUsername = "Empty";
+            }
+
+            this.gameMap.put(String.valueOf(i), gameList[i-1]);
+
+            System.out.println(i + " - " + gameName + " Black Username: " + blackUsername + " White Username: " + whiteUsername);
+
+        }
+    }
+
+    private void joinGame(){
+
+        if(this.gameMap.isEmpty()){
+            System.out.println("No games exist to join");
+        }
+
+        System.out.println("Type the game number from the last time all games were printed");
+        String gameNumber = this.getUserInput();
+        if(this.gameMap.get(gameNumber) != null){
+            ChessGame selectedGame = this.gameMap.get(gameNumber);
+            System.out.println(selectedGame.getGameName() + " selected!");
+            System.out.println("Please type the desired team (Black/White)");
+            String gameTeam = this.getUserInput();
+            System.out.println(gameTeam.toLowerCase());
+            if(gameTeam.toLowerCase().equals("white")){
+                this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                System.out.println("Game successfully joined!");
+                printBoard.printBoard(selectedGame.getBoard());
+            }else if(gameTeam.toLowerCase().equals("black")){
+                this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                System.out.println("Game successfully joined!");
+                printBoard.printBoard(selectedGame.getBoard());
+            }else{
+                System.out.println("Incorrect team selected");
+            }
+        }else{
+            System.out.println("Game not found");
+        }
+    }
+
+    private void joinGameAsObserver(){
+        if(this.gameMap.isEmpty()){
+            System.out.println("No games exist to join");
+        }
+
+        System.out.println("Type the game number from the last time all games were printed");
+        String gameNumber = this.getUserInput();
+        if(this.gameMap.get(gameNumber) != null){
+            ChessGame selectedGame = this.gameMap.get(gameNumber);
+            this.serverFacade.joinGame(authToken, null, selectedGame.getGameId());
+            System.out.println("Game successfully joined as an observer!");
+            printBoard.printBoard(selectedGame.getBoard());
+        }else{
+            System.out.println("Game not found");
+        }
+    }
 }

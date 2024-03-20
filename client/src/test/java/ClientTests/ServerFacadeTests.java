@@ -173,9 +173,6 @@ public class ServerFacadeTests {
         Assertions.assertEquals(expectedMessage, thrownException.getMessage());
     }
 
-
-
-    //Needs work /:
     @Test
     @DisplayName("Join Game Positive")
     public void joinGamePositive(){
@@ -187,7 +184,9 @@ public class ServerFacadeTests {
         this.serverFacade.joinGame(token, "WHITE", gameId1);
         this.serverFacade.joinGame(token, "BLACK", gameId1);
 
-        ChessGame game[] = this.serverFacade.listGames(token);
+        ChessGame games[] = this.serverFacade.listGames(token);
+        Assertions.assertEquals(username, games[0].getBlackUsername());
+        Assertions.assertEquals(username, games[0].getWhiteUsername());
 
     }
 

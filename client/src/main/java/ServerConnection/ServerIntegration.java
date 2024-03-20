@@ -308,7 +308,12 @@ public class ServerIntegration {
     public void joinGame(String authToken, String clientColor, int gameID){
 
         String urlString = "http://localhost:" + this.port + "/game";
-        String jsonBody = "{\"playerColor\":\"" + clientColor + "\",\"gameID\":\"" + String.valueOf(gameID) + "\"}";
+        String jsonBody;
+        if(clientColor == null){
+            jsonBody = "{\"gameID\":\"" + String.valueOf(gameID) + "\"}";
+        }else{
+            jsonBody = "{\"playerColor\":\"" + clientColor + "\",\"gameID\":\"" + String.valueOf(gameID) + "\"}";
+        }
 
         try {
 
