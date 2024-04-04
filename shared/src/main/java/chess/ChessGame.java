@@ -26,6 +26,15 @@ public class ChessGame {
     private String gameName;
     private String whiteUsername;
     private String blackUsername;
+    private boolean gameOver;
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
 
     public String getWhiteUsername() {
         return whiteUsername;
