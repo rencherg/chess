@@ -1,6 +1,6 @@
 Todo:
 
-1. Add a data field to the chessgame class to mark the game as over
+1. Add a data field to the chessgame class to mark the game as over✅
 2. Create all command classes for server and user
 3. Join websocket command (/connect)
 4. Websocket backend connection
