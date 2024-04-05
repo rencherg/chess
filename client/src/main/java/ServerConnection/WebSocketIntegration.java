@@ -6,17 +6,9 @@ import java.util.Scanner;
 
 public class WebSocketIntegration extends Endpoint {
 
-//    public static void main(String[] args) throws Exception {
-//        var ws = new WebSocketIntegration();
-//        Scanner scanner = new Scanner(System.in);
-//
-//        System.out.println("Enter a message you want to echo");
-//        while (true) ws.send(scanner.nextLine());
-//    }
-
     public Session session;
 
-    public WebSocketIntegration(String port) {
+    public WebSocketIntegration(String port, WebSocketObserver observer) {
         try{
             URI uri = new URI("ws://localhost:" + port + "/connect");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -25,7 +17,7 @@ public class WebSocketIntegration extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
 
                 public void onMessage(String message) {
-                    System.out.println(message);
+                    observer.onMessageReceived(message);
                 }
             });
         } catch (Exception e) {

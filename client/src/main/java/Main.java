@@ -9,6 +9,8 @@ public class Main {
 
         Menu menu = new Menu(PORT);
 
+        menu.sendWebSocketMessage("Dread Pirate Roberts");
+
         menu.runMenu();
 
     }

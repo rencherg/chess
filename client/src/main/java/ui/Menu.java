@@ -2,13 +2,14 @@ package ui;
 
 import ServerConnection.ServerFacade;
 import ServerConnection.WebSocketIntegration;
+import ServerConnection.WebSocketObserver;
 import chess.ChessGame;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Menu {
+public class Menu implements WebSocketObserver {
 
     private final String PORT;
 //    private static final int PORT = 8080;
@@ -19,13 +20,6 @@ public class Menu {
     private Map<String, ChessGame> gameMap = new HashMap<>();
     private PrintBoard printBoard = new PrintBoard();
 
-
-
-//    var ws = new WebSocketIntegration();
-//    Scanner scanner = new Scanner(System.in);
-//
-//    System.out.println("Enter a message you want to echo");
-//    while (true) ws.send(scanner.nextLine());
 
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
             "1 - Help\n" +
@@ -57,7 +51,7 @@ public class Menu {
 
     public Menu(String port){
         this.PORT = port;
-        serverFacade = new ServerFacade(String.valueOf(PORT));
+        serverFacade = new ServerFacade(String.valueOf(PORT), this);
 //        var port = server.run(PORT);
         System.out.println("Started test HTTP server on " + port);
     }
@@ -248,5 +242,19 @@ public class Menu {
         }else{
             System.out.println("Game not found");
         }
+    }
+
+    public void onMessageReceived(String message) {
+        // Process the received message
+        System.out.println("Received message from websocket!!: " + message);
+    }
+
+    public void sendWebSocketMessage(String message){
+        try{
+            this.serverFacade.sendWebSocketMessage(message);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

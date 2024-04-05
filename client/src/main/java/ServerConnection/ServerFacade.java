@@ -2,16 +2,14 @@ package ServerConnection;
 
 import chess.ChessGame;
 
-import java.io.IOException;
-
 public class ServerFacade {
 
     ServerIntegration serverIntegration;
     private WebSocketIntegration webSocketIntegration;
 
-    public ServerFacade(String port){
+    public ServerFacade(String port, WebSocketObserver observer){
         serverIntegration = new ServerIntegration(port);
-        webSocketIntegration = new WebSocketIntegration(port);
+        webSocketIntegration = new WebSocketIntegration(port, observer);
     }
 
     public String register(String username, String password, String email){
@@ -43,6 +41,10 @@ public class ServerFacade {
 
     public void clearDb(){
         serverIntegration.clearDb();
+    }
+
+    public void sendWebSocketMessage(String message) throws Exception {
+        this.webSocketIntegration.send(message);
     }
 
 }
