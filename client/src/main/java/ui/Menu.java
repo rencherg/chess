@@ -1,6 +1,7 @@
 package ui;
 
 import ServerConnection.ServerFacade;
+import ServerConnection.WebSocketIntegration;
 import chess.ChessGame;
 
 import java.util.HashMap;
@@ -17,6 +18,15 @@ public class Menu {
     private String authToken = null;
     private Map<String, ChessGame> gameMap = new HashMap<>();
     private PrintBoard printBoard = new PrintBoard();
+
+
+
+//    var ws = new WebSocketIntegration();
+//    Scanner scanner = new Scanner(System.in);
+//
+//    System.out.println("Enter a message you want to echo");
+//    while (true) ws.send(scanner.nextLine());
+
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
             "1 - Help\n" +
             "2 - Quit\n" +

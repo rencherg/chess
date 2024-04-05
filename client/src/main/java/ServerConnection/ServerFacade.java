@@ -7,9 +7,11 @@ import java.io.IOException;
 public class ServerFacade {
 
     ServerIntegration serverIntegration;
+    private WebSocketIntegration webSocketIntegration;
 
     public ServerFacade(String port){
         serverIntegration = new ServerIntegration(port);
+        webSocketIntegration = new WebSocketIntegration(port);
     }
 
     public String register(String username, String password, String email){
