@@ -1,5 +1,8 @@
 package ServerConnection;
 
+import com.google.gson.Gson;
+import webSocketMessages.userCommands.UserGameCommand;
+
 import javax.websocket.*;
 import java.net.URI;
 import java.util.Scanner;
@@ -7,6 +10,7 @@ import java.util.Scanner;
 public class WebSocketIntegration extends Endpoint {
 
     public Session session;
+    Gson gson = new Gson();
 
     public WebSocketIntegration(String port, WebSocketObserver observer) {
         try{
@@ -26,8 +30,9 @@ public class WebSocketIntegration extends Endpoint {
 
     }
 
-    public void send(String msg) throws Exception {
-        this.session.getBasicRemote().sendText(msg);
+    public void send(UserGameCommand userGameCommand) throws Exception {
+        String jsonCommand = gson.toJson(userGameCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
     }
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {

@@ -1,6 +1,7 @@
 package ServerConnection;
 
 import chess.ChessGame;
+import webSocketMessages.userCommands.UserGameCommand;
 
 public class ServerFacade {
 
@@ -43,8 +44,8 @@ public class ServerFacade {
         serverIntegration.clearDb();
     }
 
-    public void sendWebSocketMessage(String message) throws Exception {
-        this.webSocketIntegration.send(message);
+    public void sendWebSocketMessage(UserGameCommand userGameCommand) throws Exception {
+        this.webSocketIntegration.send(userGameCommand);
     }
 
 }

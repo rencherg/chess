@@ -1,5 +1,8 @@
 import chess.*;
 import ui.Menu;
+import webSocketMessages.userCommands.JoinObserver;
+import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.UserGameCommand;
 
 public class Main {
 
@@ -9,7 +12,11 @@ public class Main {
 
         Menu menu = new Menu(PORT);
 
-        menu.sendWebSocketMessage("Dread Pirate Roberts");
+        UserGameCommand myJoinObserver = new JoinObserver("token", 1234);
+        UserGameCommand myLeave = new Leave("token", 1234);
+
+        menu.sendWebSocketMessage(myJoinObserver);
+        menu.sendWebSocketMessage(myLeave);
 
         menu.runMenu();
 

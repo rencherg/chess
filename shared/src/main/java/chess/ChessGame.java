@@ -83,6 +83,14 @@ public class ChessGame {
         return this.color;
     }
 
+    public void toggleTeamTurn() {
+        if(this.color.equals(TeamColor.WHITE)){
+            this.color = TeamColor.BLACK;
+        }else{
+            this.color = TeamColor.WHITE;
+        }
+    }
+
     /**
      * Set's which teams turn it is
      *

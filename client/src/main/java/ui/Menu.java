@@ -4,6 +4,7 @@ import ServerConnection.ServerFacade;
 import ServerConnection.WebSocketIntegration;
 import ServerConnection.WebSocketObserver;
 import chess.ChessGame;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -247,11 +248,13 @@ public class Menu implements WebSocketObserver {
     public void onMessageReceived(String message) {
         // Process the received message
         System.out.println("Received message from websocket!!: " + message);
+
+        //Deserialize and process
     }
 
-    public void sendWebSocketMessage(String message){
+    public void sendWebSocketMessage(UserGameCommand userGameCommand){
         try{
-            this.serverFacade.sendWebSocketMessage(message);
+            this.serverFacade.sendWebSocketMessage(userGameCommand);
         }catch (Exception e){
             e.printStackTrace();
         }
