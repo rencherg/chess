@@ -4,7 +4,12 @@ import ServerConnection.ServerFacade;
 import ServerConnection.WebSocketIntegration;
 import ServerConnection.WebSocketObserver;
 import chess.ChessGame;
-import webSocketMessages.userCommands.UserGameCommand;
+import com.google.gson.Gson;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerError;
+import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +25,7 @@ public class Menu implements WebSocketObserver {
     private String authToken = null;
     private Map<String, ChessGame> gameMap = new HashMap<>();
     private PrintBoard printBoard = new PrintBoard();
+    Gson gson = new Gson();
 
 
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
@@ -247,9 +253,50 @@ public class Menu implements WebSocketObserver {
 
     public void onMessageReceived(String message) {
         // Process the received message
-        System.out.println("Received message from websocket!!: " + message);
+//        System.out.println("Received message from websocket!!: " + message);
 
         //Deserialize and process
+        System.out.printf("Received: %s", message);
+        ServerMessage receivedServerMessage = gson.fromJson(message, ServerMessage.class);
+        ServerMessage.ServerMessageType receivedMessage = receivedServerMessage.getServerMessageType();
+
+//        for(UserSession userSession: userSessionList){
+//            if(userSession.getUserSession().equals(session)){
+//                userSession
+//            }
+//        }
+
+        switch(receivedMessage){
+            case LOAD_GAME:
+                LoadGame loadGame = gson.fromJson(message, LoadGame.class);
+//                handleJoinObserver(session, joinObserver);
+                handleLoadGame(loadGame);
+                break;
+            case ERROR:
+                ServerError serverError = gson.fromJson(message, ServerError.class);
+                handleError(serverError);
+                break;
+            case NOTIFICATION:
+                Notification notification = gson.fromJson(message, Notification.class);
+                handleNotification(notification);
+                break;
+        }
+
+//        System.out.println(receivedCommand);
+    }
+
+    private void handleLoadGame(LoadGame loadGame){
+        //Figure out how to store the board
+        System.out.println("New board received.");
+    }
+
+    private void handleError(ServerError serverError){
+        System.out.println(serverError.getErrorMessage());
+    }
+
+    private void handleNotification(Notification notification){
+        //Figure out how to store the board
+        System.out.println("Notification: " + notification.getMessage());
     }
 
     public void sendWebSocketMessage(UserGameCommand userGameCommand){
@@ -258,6 +305,14 @@ public class Menu implements WebSocketObserver {
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
+
+//    public void webSocketTest(){
+//        try{
+//            JoinObserver joinObserver = new JoinObserver("nviurenvire", 12345);
+//            this.serverFacade.sendWebSocketMessage(joinObserver);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 }

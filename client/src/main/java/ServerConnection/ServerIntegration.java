@@ -344,6 +344,7 @@ public class ServerIntegration {
             connection.disconnect();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("join game failed");
         }
     }

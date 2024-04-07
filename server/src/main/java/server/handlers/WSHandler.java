@@ -11,8 +11,12 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.ServerError;
+import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +31,12 @@ public class WSHandler {
 
     // List to store connected sessions
     private static final CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
-    List<UserSession> userSessionList = new ArrayList<>();
+    private List<UserSession> userSessionList = new ArrayList<>();
     SQLGameDAO sqlGameDAO = new SQLGameDAO();
     SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
-    SQLUserDAO sqlUserDAO = new SQLUserDAO();
+//    SQLUserDAO sqlUserDAO = new SQLUserDAO();
+//    ServerError serverError;
+//    ServerMessage serverMessage;
 
     Gson gson = new Gson();
 
@@ -49,25 +55,11 @@ public class WSHandler {
         System.out.println("WebSocket connected: " + session.getRemoteAddress());
     }
 
-//    @OnWebSocketMessage
-//    public void onMessage(Session session, String message) throws Exception {
-//        // Handle incoming messages
-//        System.out.println("Received message: " + message);
-//        // Example: Broadcast the message to all connected users
-//        broadcast("Echo: " + message);
-//    }
-
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         System.out.printf("Received: %s", message);
         UserGameCommand receivedCommandClass = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType receivedCommand = receivedCommandClass.getCommandType();
-
-//        for(UserSession userSession: userSessionList){
-//            if(userSession.getUserSession().equals(session)){
-//                userSession
-//            }
-//        }
 
         switch(receivedCommand){
             case JOIN_OBSERVER:
@@ -93,7 +85,7 @@ public class WSHandler {
         }
 
         System.out.println(receivedCommand);
-        session.getRemote().sendString("WebSocket response: " + message);
+//        session.getRemote().sendString("WebSocket response: " + message);
 
     }
 
@@ -101,15 +93,19 @@ public class WSHandler {
 
         String authToken = joinObserver.getAuthString();
         int gameId = joinObserver.getGameID();
+        ChessGame chessGame = null;
 
         //Check authToken
         try {
-            if(sqlAuthDAO.getAuth(authToken).equals(null)){
-                //Notify of authentication failure
+            AuthData authData = sqlAuthDAO.getAuth(authToken);
+            if(authData == null){
+                ServerError serverError = new ServerError("Error: Failed authentication");
+                sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
-            //Notify of authentication failure
+            ServerError serverError = new ServerError("Error: Failed authentication");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -118,19 +114,22 @@ public class WSHandler {
 
             GameData gameToJoin = sqlGameDAO.getGame(gameId);
 
-            if(gameToJoin.equals(null)){
-                //Notify of bad game id
+            if(gameToJoin == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
                 return;
             }
 
-            ChessGame chessGame = gameToJoin.getGame();
+            chessGame = gameToJoin.getGame();
 
             if(chessGame.isGameOver()){
-                //Notify game is over
+                ServerError serverError = new ServerError("Error: The game is over");
+                sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
-            //Notify of bad game id
+            ServerError serverError = new ServerError("Error: Bad game ID or other SQL issue");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -144,7 +143,8 @@ public class WSHandler {
         System.out.println("inside handle observer");
 
         //Other Items
-//        3. Send load game to root client
+        LoadGame loadGame = new LoadGame(chessGame);
+        sendMessage(loadGame, session);
 //        4. Send notification to all other users in the game
     }
 
@@ -153,40 +153,47 @@ public class WSHandler {
         String authToken = joinPlayer.getAuthString();
         int gameId = joinPlayer.getGameID();
         String username;
+        ChessGame chessGame = null;
 
         //Check authToken
         try {
             AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData.equals(null)){
-                //Notify of authentication failure
+            if(authData == null){
+                ServerError serverError = new ServerError("Error: Failed authentication");
+                sendMessage(serverError, session);
                 return;
             }else{
                 username = authData.getUsername();
             }
         } catch (SQLException e) {
-            //Notify of authentication failure
+            ServerError serverError = new ServerError("Error: Failed authentication");
+            sendMessage(serverError, session);
             return;
         }
 
         //verify game id
         try {
             GameData gameToJoin = sqlGameDAO.getGame(gameId);
-            if(gameToJoin.equals(null)){
-                //Notify of bad game id
+            if(gameToJoin == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
                 return;
             }
 
-            ChessGame chessGame = gameToJoin.getGame();
+            chessGame = gameToJoin.getGame();
 
             if(chessGame.isGameOver()){
-                //Notify game is over
+                ServerError serverError = new ServerError("Error: Game is over");
+                sendMessage(serverError, session);
                 return;
             }else if(!((gameToJoin.getWhiteUsername().equals(username) && joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.WHITE)) || (gameToJoin.getBlackUsername().equals(username) && joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.BLACK)))){
-                //Notify of incorrect color
+                ServerError serverError = new ServerError("Error: Incorrect Color");
+                sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
-            //Notify of bad game id
+            ServerError serverError = new ServerError("Error: Bad game ID");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -205,7 +212,8 @@ public class WSHandler {
         System.out.println("inside handle observer");
 
         //Other Items
-//        3. Send load game to root client
+        LoadGame loadGame = new LoadGame(chessGame);
+        sendMessage(loadGame, session);
 //        4. Send notification to all other users in the game
     }
 
@@ -220,33 +228,38 @@ public class WSHandler {
         //Check authToken
         try {
             AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData.equals(null)){
-                //Notify of authentication failure
+            if(authData == null){
+                ServerError serverError = new ServerError("Error: Failed authentication");
+                sendMessage(serverError, session);
                 return;
             }else{
                 username = authData.getUsername();
             }
         } catch (SQLException e) {
-            //Notify of authentication failure
+            ServerError serverError = new ServerError("Error: Failed authentication");
+            sendMessage(serverError, session);
             return;
         }
 
         //verify game id
         try {
             gameData = sqlGameDAO.getGame(gameId);
-            if(gameData.equals(null)){
-                //Notify of bad game id
+            if(gameData == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
                 return;
             }
 
             chessGame = gameData.getGame();
 
             if(chessGame.isGameOver()){
-                //Notify game is over
+                ServerError serverError = new ServerError("Error: The game is over");
+                sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
-            //Notify of bad game id
+            ServerError serverError = new ServerError("Error: Bad game ID");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -254,12 +267,14 @@ public class WSHandler {
             if(userSession.getUserSession().equals(session)){
                 //Check that the participant making a move is a player
                 if(!(((userSession.getClientRole().equals(ClientRole.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE))))){
-                    //notify that observers can't make moves
+                    ServerError serverError = new ServerError("Error: Observers can't make moves");
+                    sendMessage(serverError, session);
                     return;
 
                 //Check that its the players turn that wants to make a move
                 }else if(!((userSession.getClientRole().equals(ClientRole.BLACK) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)))){
-                    //Notify the player that it's not their turn
+                    ServerError serverError = new ServerError("Error: It's not your turn");
+                    sendMessage(serverError, session);
                     return;
                 }else{
                     chessGame.setGameOver(true);
@@ -272,7 +287,8 @@ public class WSHandler {
         try{
             chessGame.makeMove(chessMove);
         }catch(InvalidMoveException e){
-            //Notify the user of invalid move.
+            ServerError serverError = new ServerError("Error: Invalid move");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -280,7 +296,8 @@ public class WSHandler {
         try {
             sqlGameDAO.updateGame(gameData);
         } catch (SQLException e) {
-            //notify user of bad sql action
+            ServerError serverError = new ServerError("Error: Problem with the move");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -298,29 +315,33 @@ public class WSHandler {
         //Check authToken
         try {
             AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData.equals(null)){
-                //Notify of authentication failure
+            if(authData == null){
+                ServerError serverError = new ServerError("Error: Failed authentication");
+                sendMessage(serverError, session);
                 return;
             }else{
                 username = authData.getUsername();
             }
         } catch (SQLException e) {
-            //Notify of authentication failure
+            ServerError serverError = new ServerError("Error: Failed authentication");
+            sendMessage(serverError, session);
             return;
         }
 
         //verify game id
         try {
             GameData gameToJoin = sqlGameDAO.getGame(gameId);
-            if(gameToJoin.equals(null)){
-                //Notify of bad game id
+            if(gameToJoin == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
                 return;
             }
 
             chessGame = gameToJoin.getGame();
 
             if(chessGame.isGameOver()){
-                //Notify game is over
+                ServerError serverError = new ServerError("Error: The game is over");
+                sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
@@ -332,7 +353,8 @@ public class WSHandler {
             if(userSession.getUserSession().equals(session)){
                 //Check that the participant resigning is a player
                 if(!((userSession.getClientRole().equals(ClientRole.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE)))){
-                    //notify that observers can't resign
+                    ServerError serverError = new ServerError("Error: Observers can't resign");
+                    sendMessage(serverError, session);
                     return;
                 }else{
                     chessGame.setGameOver(true);
@@ -356,27 +378,31 @@ public class WSHandler {
         //Check authToken
         try {
             AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData.equals(null)){
-                //Notify of authentication failure
+            if(authData == null){
+                ServerError serverError = new ServerError("Error: Failed authentication");
+                sendMessage(serverError, session);
                 return;
             }else{
                 username = authData.getUsername();
             }
         } catch (SQLException e) {
-            //Notify of authentication failure
+            ServerError serverError = new ServerError("Error: Failed authentication");
+            sendMessage(serverError, session);
             return;
         }
 
         //verify game id
         try {
             joinedGame = sqlGameDAO.getGame(gameId);
-            if(joinedGame.equals(null)){
-                //Notify of bad game id
+            if(joinedGame == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
                 return;
             }
 
         } catch (SQLException e) {
-            //Notify of bad game id
+            ServerError serverError = new ServerError("Error: Bad game ID");
+            sendMessage(serverError, session);
             return;
         }
 
@@ -408,7 +434,11 @@ public class WSHandler {
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
+
         // Remove the closed session from the list of sessions
+        UserSession userSession = getUserSession(session);
+        userSessionList.remove(userSession);
+
         sessions.remove(session);
         System.out.println("WebSocket closed: " + statusCode + " - " + reason);
     }
@@ -418,14 +448,72 @@ public class WSHandler {
         System.out.println("WebSocket error: " + throwable.getMessage());
     }
 
-    // Method to broadcast a message to all connected users
-    private static void broadcast(String message) {
-        for (Session session : sessions) {
+    //Sends message to all users in the same game
+    private void sendToAll(ServerMessage serverMessage, Session rootSession) {
+
+        UserSession rootUserSession = getUserSession(rootSession);
+        int id = rootUserSession.getGameId();
+
+        if(rootUserSession == null){
+            System.out.print("Error: userSession not found.");
+            return;
+        }
+
+        userSessionList.forEach(userSession -> {
             try {
-                session.getRemote().sendString(message);
+                final Session session = userSession.getUserSession();
+                sendMessage(serverMessage, session);
             } catch (Exception e) {
                 System.err.println("Error broadcasting message: " + e.getMessage());
             }
+        });
+    }
+
+    //Sends message to all users in the same game
+    private void sendToAllExceptRoot(ServerMessage serverMessage, Session rootSession) {
+
+        UserSession rootUserSession = getUserSession(rootSession);
+        int id = rootUserSession.getGameId();
+
+        if(rootUserSession == null){
+            System.out.print("Error: userSession not found.");
+            return;
+        }
+
+        userSessionList.forEach(userSession -> {
+            try {
+                if(rootUserSession.getGameId() != id){
+                    final Session session = userSession.getUserSession();
+                    sendMessage(serverMessage, session);
+                }
+            } catch (Exception e) {
+                System.err.println("Error broadcasting message: " + e.getMessage());
+            }
+        });
+    }
+
+    //send a message to the given session
+    private void sendMessage(ServerMessage serverMessage, Session session) {
+        try {
+            String message = gson.toJson(serverMessage);
+            session.getRemote().sendString(message);
+        } catch (Exception e) {
+            System.err.println("Error broadcasting message: " + e.getMessage());
         }
     }
+
+    //Get the userSession object given a Session object
+    private UserSession getUserSession(Session session) {
+        for (UserSession userSession : userSessionList) {
+            if (userSession.getUserSession().equals(session)) {
+                return userSession;
+            }
+        }
+        return null;
+    }
+
 }
+
+
+//Finish coding the notifications
+//Test what has been written
