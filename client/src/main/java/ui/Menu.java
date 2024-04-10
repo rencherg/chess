@@ -3,6 +3,7 @@ package ui;
 import ServerConnection.ServerFacade;
 import ServerConnection.WebSocketIntegration;
 import ServerConnection.WebSocketObserver;
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.LoadGame;
@@ -256,7 +257,7 @@ public class Menu implements WebSocketObserver {
 //        System.out.println("Received message from websocket!!: " + message);
 
         //Deserialize and process
-        System.out.printf("Received: %s", message);
+//        System.out.printf("Received: %s", message);
         ServerMessage receivedServerMessage = gson.fromJson(message, ServerMessage.class);
         ServerMessage.ServerMessageType receivedMessage = receivedServerMessage.getServerMessageType();
 
@@ -287,7 +288,10 @@ public class Menu implements WebSocketObserver {
 
     private void handleLoadGame(LoadGame loadGame){
         //Figure out how to store the board
-        System.out.println("New board received.");
+        System.out.println("New board received");
+        ChessGame game = loadGame.getGame();
+        ChessBoard board = game.getBoard();
+        printBoard.printBoard(board);
     }
 
     private void handleError(ServerError serverError){

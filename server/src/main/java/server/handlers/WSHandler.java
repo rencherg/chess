@@ -278,20 +278,21 @@ public class WSHandler {
         for(UserSession userSession: userSessionList){
             if(userSession.getUserSession().equals(session)){
                 //Check that the participant making a move is a player
-                if(!(((userSession.getClientRole().equals(ClientRole.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE))))){
-                    ServerError serverError = new ServerError("Error: Observers can't make moves");
+
+                ClientRole clientRole = userSession.getClientRole();
+
+                //Check that the participant resigning is a player
+                if(clientRole == null || clientRole.equals(ClientRole.OBSERVER)){
+                    ServerError serverError = new ServerError("Error: Only players can make moves");
                     sendMessage(serverError, session);
                     return;
 
                 //Check that its the players turn that wants to make a move
-                }else if(!((userSession.getClientRole().equals(ClientRole.BLACK) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)))){
+                }else if(!((clientRole.equals(ClientRole.BLACK) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK))||(clientRole.equals(ClientRole.WHITE) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)))){
                     ServerError serverError = new ServerError("Error: It's not your turn");
                     sendMessage(serverError, session);
                     return;
-                }else{
-                    chessGame.setGameOver(true);
                 }
-
             }
         }
 
@@ -313,7 +314,30 @@ public class WSHandler {
             return;
         }
 
+        //Check if the game is in checkmate or stalemate
+        if(chessGame.isInStalemate(ChessGame.TeamColor.BLACK) || chessGame.isInStalemate(ChessGame.TeamColor.WHITE)){
+            chessGame.setGameOver(true);
+
+            markGameOver(gameData, session);
+
+            //Notify that the game is over
+            Notification notification = new Notification("THE GAME IS OVER");
+        }else if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
+            markGameOver(gameData, session);
+
+            //Notify that black won
+        }else if(chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
+            markGameOver(gameData, session);
+
+            //Notify that white won
+        }
+
         //Other Items
+
+        //delete this after testing
+        LoadGame loadGame = new LoadGame(chessGame);
+        sendMessage(loadGame, session);
+
 //        3. Send new game notification to all users in the game
 //        4. Notify all other users of the move that was made
     }
@@ -373,16 +397,7 @@ public class WSHandler {
                     sendMessage(serverError, session);
                     return;
                 }else{
-                    chessGame.setGameOver(true);
-
-                    //This may need to change to a set function if the chessgame object in the gameData object is not changed automatically
-                    try {
-                        sqlGameDAO.updateGame(gameData);
-                    } catch (SQLException e) {
-                        ServerError serverError = new ServerError("Error: Problem with the move");
-                        sendMessage(serverError, session);
-                        return;
-                    }
+                    markGameOver(gameData, session);
 
                     break;
                 }
@@ -549,8 +564,20 @@ public class WSHandler {
         return null;
     }
 
+    private void markGameOver(GameData gameData, Session session){
+
+        ChessGame chessGame = gameData.getGame();
+
+        chessGame.setGameOver(true);
+
+        //This may need to change to a set function if the chessgame object in the gameData object is not changed automatically
+        try {
+            sqlGameDAO.updateGame(gameData);
+        } catch (SQLException e) {
+            ServerError serverError = new ServerError("Error: Problem with the move");
+            sendMessage(serverError, session);
+            return;
+        }
+    }
+
 }
-
-
-//Finish coding the notifications
-//Test what has been written

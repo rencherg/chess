@@ -13,5 +13,5 @@ public class LoadGame extends ServerMessage{
         return game;
     }
 
-    ChessGame game;
+    private ChessGame game;
 }
