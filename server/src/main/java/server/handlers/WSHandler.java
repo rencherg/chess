@@ -95,6 +95,7 @@ public class WSHandler {
         String authToken = joinObserver.getAuthString();
         int gameId = joinObserver.getGameID();
         ChessGame chessGame = null;
+        String username = null;
 
         //Check authToken
         try {
@@ -103,6 +104,8 @@ public class WSHandler {
                 ServerError serverError = new ServerError("Error: Failed authentication");
                 sendMessage(serverError, session);
                 return;
+            }else{
+                username = authData.getUsername();
             }
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Failed authentication");
@@ -144,10 +147,10 @@ public class WSHandler {
 
         System.out.println("inside handle observer");
 
-        //Other Items
         LoadGame loadGame = new LoadGame(chessGame);
         sendMessage(loadGame, session);
-//        4. Send notification to all other users in the game
+        Notification notification = new Notification("Notification: " + username + " has joined as an observer.");
+        sendToAllExceptRoot(notification, session);
     }
 
 
@@ -157,6 +160,7 @@ public class WSHandler {
         String username;
         ChessGame chessGame = null;
         ChessGame.TeamColor teamColor = joinPlayer.getPlayerColor();
+        String joinedTeam = null;
 
         if(teamColor == null){
             ServerError serverError = new ServerError("Error: Incorrect Color");
@@ -214,19 +218,19 @@ public class WSHandler {
                 userSession.setGameId(gameId);
                 if(teamColor.equals(ChessGame.TeamColor.BLACK)){
                     userSession.setClientRole(ClientRole.BLACK);
+                    joinedTeam = "black";
                 }else if(teamColor.equals(ChessGame.TeamColor.WHITE)){
                     userSession.setClientRole(ClientRole.WHITE);
+                    joinedTeam = "white";
                 }
 
             }
         }
 
-        System.out.println("inside handle observer");
-
-        //Other Items
         LoadGame loadGame = new LoadGame(chessGame);
         sendMessage(loadGame, session);
-//        4. Send notification to all other users in the game
+        Notification notification = new Notification("Notification: " + username + " has joined the " + joinedTeam + " team.");
+        sendToAllExceptRoot(notification, session);
     }
 
     private void handleMakeMove(Session session, MakeMove makeMove){
@@ -320,25 +324,22 @@ public class WSHandler {
 
             markGameOver(gameData, session);
 
-            //Notify that the game is over
-            Notification notification = new Notification("THE GAME IS OVER");
+            Notification notification = new Notification("The game has reached stalemate!");
+            sendToAllExceptRoot(notification, session);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
             markGameOver(gameData, session);
 
-            //Notify that black won
+            Notification notification = new Notification("Black has won the game!");
+            sendToAllExceptRoot(notification, session);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
             markGameOver(gameData, session);
 
-            //Notify that white won
+            Notification notification = new Notification("White has won the game!");
+            sendToAllExceptRoot(notification, session);
         }
 
-        //Other Items
-
-        //delete this after testing
         LoadGame loadGame = new LoadGame(chessGame);
-        sendMessage(loadGame, session);
-
-//        3. Send new game notification to all users in the game
+        sendToAllExceptRoot(loadGame, session);
 //        4. Notify all other users of the move that was made
     }
 
@@ -397,6 +398,15 @@ public class WSHandler {
                     sendMessage(serverError, session);
                     return;
                 }else{
+
+                    if(clientRole.equals(ClientRole.WHITE)){
+                        Notification notification = new Notification("Notification: " + username + ", the white player has resigned! Black wins the game!");
+                        sendToAll(notification, session);
+                    }else if(clientRole.equals(ClientRole.BLACK)) {
+                        Notification notification = new Notification("Notification: " + username + ", the black player has resigned! White wins the game!");
+                        sendToAll(notification, session);
+                    }
+
                     markGameOver(gameData, session);
 
                     break;
@@ -404,15 +414,6 @@ public class WSHandler {
 
             }
         }
-
-        //Delete this
-        System.out.println("inside handle resign");
-        Notification notification = new Notification("Resign successful");
-//        ServerError serverError = new ServerError("Error: Invalid move");
-        sendMessage(notification, session);
-
-        //Other Items
-//        3. Send notification to all other users in the game saying the game is over and the other player won
     }
 
     private void handleLeave(Session session, Leave leave){
@@ -460,12 +461,15 @@ public class WSHandler {
 
                 if(clientRole != null && clientRole.equals(ClientRole.BLACK)){
                     joinedGame.setBlackUsername(null);
-                    //notify others that black player left
+                    Notification notification = new Notification("Notification: " + username + ", the black player has left the game.");
+                    sendToAllExceptRoot(notification, session);
                 }else if(clientRole != null && clientRole.equals(ClientRole.WHITE)){
                     joinedGame.setWhiteUsername(null);
-                    //notify others that white player left
+                    Notification notification = new Notification("Notification: " + username + ", the white player has left the game.");
+                    sendToAllExceptRoot(notification, session);
                 }else if(clientRole != null && clientRole.equals(ClientRole.OBSERVER)){
-                    //notify others that white player left
+                    Notification notification = new Notification("Notification: " + username + ", an observer has left the game.");
+                    sendToAllExceptRoot(notification, session);
                 }else{
                     ServerError serverError = new ServerError("Error: You must be an observer or player to leave.");
                     sendMessage(serverError, session);
@@ -476,8 +480,6 @@ public class WSHandler {
 
             }
         }
-
-        System.out.println("inside handle leave");
 
         //Other Items
 //        3. Front end needs to terminate websocket connection!

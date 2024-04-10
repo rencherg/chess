@@ -299,8 +299,7 @@ public class Menu implements WebSocketObserver {
     }
 
     private void handleNotification(Notification notification){
-        //Figure out how to store the board
-        System.out.println("Notification: " + notification.getMessage());
+        System.out.println(notification.getMessage());
     }
 
     public void sendWebSocketMessage(UserGameCommand userGameCommand){
