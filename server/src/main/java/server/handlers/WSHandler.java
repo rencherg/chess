@@ -12,6 +12,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerError;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
@@ -137,6 +138,7 @@ public class WSHandler {
             if(userSession.getUserSession().equals(session)){
                 userSession.setGameId(gameId);
                 userSession.setClientRole(ClientRole.OBSERVER);
+                System.out.println("Logged in as observer");
             }
         }
 
@@ -154,6 +156,13 @@ public class WSHandler {
         int gameId = joinPlayer.getGameID();
         String username;
         ChessGame chessGame = null;
+        ChessGame.TeamColor teamColor = joinPlayer.getPlayerColor();
+
+        if(teamColor == null){
+            ServerError serverError = new ServerError("Error: Incorrect Color");
+            sendMessage(serverError, session);
+            return;
+        }
 
         //Check authToken
         try {
@@ -174,6 +183,9 @@ public class WSHandler {
         //verify game id
         try {
             GameData gameToJoin = sqlGameDAO.getGame(gameId);
+            String whiteUsername = gameToJoin.getWhiteUsername();
+            String blackUsername = gameToJoin.getBlackUsername();
+
             if(gameToJoin == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
                 sendMessage(serverError, session);
@@ -186,7 +198,7 @@ public class WSHandler {
                 ServerError serverError = new ServerError("Error: Game is over");
                 sendMessage(serverError, session);
                 return;
-            }else if(!((gameToJoin.getWhiteUsername().equals(username) && joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.WHITE)) || (gameToJoin.getBlackUsername().equals(username) && joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.BLACK)))){
+            }else if(!((whiteUsername != null && whiteUsername.equals(username) && teamColor.equals(ChessGame.TeamColor.WHITE)) || (blackUsername != null && blackUsername.equals(username) && teamColor.equals(ChessGame.TeamColor.BLACK)))){
                 ServerError serverError = new ServerError("Error: Incorrect Color");
                 sendMessage(serverError, session);
                 return;
@@ -200,9 +212,9 @@ public class WSHandler {
         for(UserSession userSession: userSessionList){
             if(userSession.getUserSession().equals(session)){
                 userSession.setGameId(gameId);
-                if(joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.BLACK)){
+                if(teamColor.equals(ChessGame.TeamColor.BLACK)){
                     userSession.setClientRole(ClientRole.BLACK);
-                }else if(joinPlayer.getPlayerColor().equals(ChessGame.TeamColor.WHITE)){
+                }else if(teamColor.equals(ChessGame.TeamColor.WHITE)){
                     userSession.setClientRole(ClientRole.WHITE);
                 }
 
@@ -311,6 +323,7 @@ public class WSHandler {
         int gameId = resign.getGameID();
         String username;
         ChessGame chessGame;
+        GameData gameData;
 
         //Check authToken
         try {
@@ -330,14 +343,14 @@ public class WSHandler {
 
         //verify game id
         try {
-            GameData gameToJoin = sqlGameDAO.getGame(gameId);
-            if(gameToJoin == null){
+            gameData = sqlGameDAO.getGame(gameId);
+            if(gameData == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
                 sendMessage(serverError, session);
                 return;
             }
 
-            chessGame = gameToJoin.getGame();
+            chessGame = gameData.getGame();
 
             if(chessGame.isGameOver()){
                 ServerError serverError = new ServerError("Error: The game is over");
@@ -351,19 +364,37 @@ public class WSHandler {
 
         for(UserSession userSession: userSessionList){
             if(userSession.getUserSession().equals(session)){
+
+                ClientRole clientRole = userSession.getClientRole();
+
                 //Check that the participant resigning is a player
-                if(!((userSession.getClientRole().equals(ClientRole.BLACK))||(userSession.getClientRole().equals(ClientRole.WHITE)))){
-                    ServerError serverError = new ServerError("Error: Observers can't resign");
+                if(clientRole == null || clientRole.equals(ClientRole.OBSERVER)){
+                    ServerError serverError = new ServerError("Error: You must be a player to resign.");
                     sendMessage(serverError, session);
                     return;
                 }else{
                     chessGame.setGameOver(true);
+
+                    //This may need to change to a set function if the chessgame object in the gameData object is not changed automatically
+                    try {
+                        sqlGameDAO.updateGame(gameData);
+                    } catch (SQLException e) {
+                        ServerError serverError = new ServerError("Error: Problem with the move");
+                        sendMessage(serverError, session);
+                        return;
+                    }
+
+                    break;
                 }
 
             }
         }
 
-        System.out.println("inside handle observer");
+        //Delete this
+        System.out.println("inside handle resign");
+        Notification notification = new Notification("Resign successful");
+//        ServerError serverError = new ServerError("Error: Invalid move");
+        sendMessage(notification, session);
 
         //Other Items
 //        3. Send notification to all other users in the game saying the game is over and the other player won
@@ -374,6 +405,7 @@ public class WSHandler {
         int gameId = leave.getGameID();
         String username;
         GameData joinedGame;
+
 
         //Check authToken
         try {
@@ -409,14 +441,19 @@ public class WSHandler {
         for(UserSession userSession: userSessionList){
             if(userSession.getUserSession().equals(session)){
 
-                if(userSession.getClientRole().equals(ClientRole.BLACK)){
+                ClientRole clientRole = userSession.getClientRole();
+
+                if(clientRole != null && clientRole.equals(ClientRole.BLACK)){
                     joinedGame.setBlackUsername(null);
                     //notify others that black player left
-                }else if(userSession.getClientRole().equals(ClientRole.WHITE)){
+                }else if(clientRole != null && clientRole.equals(ClientRole.WHITE)){
                     joinedGame.setWhiteUsername(null);
                     //notify others that white player left
+                }else if(clientRole != null && clientRole.equals(ClientRole.OBSERVER)){
+                    //notify others that white player left
                 }else{
-                    //notify others that observer left
+                    ServerError serverError = new ServerError("Error: You must be an observer or player to leave.");
+                    sendMessage(serverError, session);
                 }
 
                 userSession.setClientRole(null);
@@ -425,7 +462,7 @@ public class WSHandler {
             }
         }
 
-        System.out.println("inside handle observer");
+        System.out.println("inside handle leave");
 
         //Other Items
 //        3. Front end needs to terminate websocket connection!

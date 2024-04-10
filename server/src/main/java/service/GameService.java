@@ -40,6 +40,7 @@ public class GameService {
     }
 
     public boolean joinGame(String authToken, String clientColor, int gameID) throws SQLException {
+        clientColor = clientColor.toUpperCase();
         AuthData userAuthData = this.sqlAuthDAO.getAuth(authToken);
         GameData gameData = this.sqlGameDAO.getGame(gameID);
         if(userAuthData == null){
