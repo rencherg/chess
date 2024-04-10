@@ -3,7 +3,7 @@ package server.handlers;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class UserSession {
-    private int gameId;
+    private int gameId = -1;
     private Session userSession;
     private WSHandler.ClientRole clientRole;
 

@@ -6,7 +6,6 @@ import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.SQLAuthDAO;
 import dataAccess.SQLGameDAO;
-import dataAccess.SQLUserDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -17,22 +16,17 @@ import webSocketMessages.serverMessages.ServerError;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static webSocketMessages.userCommands.UserGameCommand.CommandType.*;
 
 @WebSocket
 public class WSHandler {
 
     // List to store connected sessions
     private static final CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
-    private List<UserSession> userSessionList = new ArrayList<>();
+    private List<UserSession> userSessionListData = new ArrayList<>();
     SQLGameDAO sqlGameDAO = new SQLGameDAO();
     SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
 //    SQLUserDAO sqlUserDAO = new SQLUserDAO();
@@ -52,13 +46,12 @@ public class WSHandler {
     public void onConnect(Session session) throws Exception {
         // Add the new session to the list of sessions
         sessions.add(session);
-        userSessionList.add(new UserSession(session));
-        System.out.println("WebSocket connected: " + session.getRemoteAddress());
+        userSessionListData.add(new UserSession(session));
+//        System.out.println("WebSocket connected: " + session.getRemoteAddress());
     }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        System.out.printf("Received: %s", message);
         UserGameCommand receivedCommandClass = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType receivedCommand = receivedCommandClass.getCommandType();
 
@@ -85,7 +78,7 @@ public class WSHandler {
                 break;
         }
 
-        System.out.println(receivedCommand);
+//        System.out.println(receivedCommand);
 //        session.getRemote().sendString("WebSocket response: " + message);
 
     }
@@ -137,15 +130,12 @@ public class WSHandler {
             return;
         }
 
-        for(UserSession userSession: userSessionList){
+        for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
                 userSession.setGameId(gameId);
                 userSession.setClientRole(ClientRole.OBSERVER);
-                System.out.println("Logged in as observer");
             }
         }
-
-        System.out.println("inside handle observer");
 
         LoadGame loadGame = new LoadGame(chessGame);
         sendMessage(loadGame, session);
@@ -213,7 +203,7 @@ public class WSHandler {
             return;
         }
 
-        for(UserSession userSession: userSessionList){
+        for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
                 userSession.setGameId(gameId);
                 if(teamColor.equals(ChessGame.TeamColor.BLACK)){
@@ -243,6 +233,7 @@ public class WSHandler {
 
         //Check authToken
         try {
+            List<UserSession> userSessionListDataBackup = this.userSessionListData;
             AuthData authData = sqlAuthDAO.getAuth(authToken);
             if(authData == null){
                 ServerError serverError = new ServerError("Error: Failed authentication");
@@ -279,7 +270,7 @@ public class WSHandler {
             return;
         }
 
-        for(UserSession userSession: userSessionList){
+        for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
                 //Check that the participant making a move is a player
 
@@ -325,21 +316,21 @@ public class WSHandler {
             markGameOver(gameData, session);
 
             Notification notification = new Notification("The game has reached stalemate!");
-            sendToAllExceptRoot(notification, session);
+            sendToAll(notification, session);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
             markGameOver(gameData, session);
 
             Notification notification = new Notification("Black has won the game!");
-            sendToAllExceptRoot(notification, session);
+            sendToAll(notification, session);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
             markGameOver(gameData, session);
 
             Notification notification = new Notification("White has won the game!");
-            sendToAllExceptRoot(notification, session);
+            sendToAll(notification, session);
         }
 
         LoadGame loadGame = new LoadGame(chessGame);
-        sendToAllExceptRoot(loadGame, session);
+        sendToAll(loadGame, session);
 //        4. Notify all other users of the move that was made
     }
 
@@ -387,7 +378,7 @@ public class WSHandler {
             return;
         }
 
-        for(UserSession userSession: userSessionList){
+        for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
 
                 ClientRole clientRole = userSession.getClientRole();
@@ -454,7 +445,7 @@ public class WSHandler {
             return;
         }
 
-        for(UserSession userSession: userSessionList){
+        for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
 
                 ClientRole clientRole = userSession.getClientRole();
@@ -491,15 +482,15 @@ public class WSHandler {
 
         // Remove the closed session from the list of sessions
         UserSession userSession = getUserSession(session);
-        userSessionList.remove(userSession);
+        userSessionListData.remove(userSession);
 
         sessions.remove(session);
-        System.out.println("WebSocket closed: " + statusCode + " - " + reason);
+//        System.out.println("WebSocket closed: " + statusCode + " - " + reason);
     }
 
     @OnWebSocketError
     public void onError(Session session, Throwable throwable) {
-        System.out.println("WebSocket error: " + throwable.getMessage());
+//        System.out.println("WebSocket error: " + throwable.getMessage());
     }
 
     //Sends message to all users in the same game
@@ -509,14 +500,17 @@ public class WSHandler {
         int id = rootUserSession.getGameId();
 
         if(rootUserSession == null){
-            System.out.print("Error: userSession not found.");
+            System.err.print("Error: Root user not found.");
             return;
         }
 
-        userSessionList.forEach(userSession -> {
+        userSessionListData.forEach(userSession -> {
             try {
-                final Session session = userSession.getUserSession();
-                sendMessage(serverMessage, session);
+                int userId = userSession.getGameId();
+                if(userId == id){
+                    final Session session = userSession.getUserSession();
+                    sendMessage(serverMessage, session);
+                }
             } catch (Exception e) {
                 System.err.println("Error broadcasting message: " + e.getMessage());
             }
@@ -530,13 +524,14 @@ public class WSHandler {
         int id = rootUserSession.getGameId();
 
         if(rootUserSession == null){
-            System.out.print("Error: userSession not found.");
+            System.err.print("Error: Root user not found.");
             return;
         }
 
-        userSessionList.forEach(userSession -> {
+        userSessionListData.forEach(userSession -> {
             try {
-                if(rootUserSession.getGameId() != id){
+                int userId = userSession.getGameId();
+                if(userId == id && !rootUserSession.equals(userSession)){
                     final Session session = userSession.getUserSession();
                     sendMessage(serverMessage, session);
                 }
@@ -558,7 +553,7 @@ public class WSHandler {
 
     //Get the userSession object given a Session object
     private UserSession getUserSession(Session session) {
-        for (UserSession userSession : userSessionList) {
+        for (UserSession userSession : userSessionListData) {
             if (userSession.getUserSession().equals(session)) {
                 return userSession;
             }
