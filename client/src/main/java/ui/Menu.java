@@ -25,8 +25,10 @@ public class Menu implements WebSocketObserver {
     private Scanner scanner = new Scanner(System.in);
     private String authToken = null;
     private Map<String, ChessGame> gameMap = new HashMap<>();
-    private PrintBoard printBoard = new PrintBoard();
+    private final PrintBoard printBoard = new PrintBoard();
     Gson gson = new Gson();
+    ChessBoard currentBoard = null;
+    int currentGameId = -1;
 
 
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
@@ -45,6 +47,15 @@ public class Menu implements WebSocketObserver {
             "6 - Join Observer\n" +
             "Type the number of the option you want";
 
+    private final String GAMEPLAY_MENU = "Choose an Item\n" +
+            "1 - Help\n" +
+            "2 - Redraw Chess Board\n" +
+            "3 - Leave\n" +
+            "4 - Make Move\n" +
+            "5 - Resign\n" +
+            "6 - Highlight Legal Moves\n" +
+            "Type the number of the option you want";
+
     private final String LOGGED_OUT_HELP_STRING = "Help Instructions:\n" +
             "Quit - Exit the program\n" +
             "Login - Enter credentials to create a new login session\n" +
@@ -56,6 +67,13 @@ public class Menu implements WebSocketObserver {
             "List Games - Lists all existing chess games\n" +
             "Join Game - Joins an existing chess game\n" +
             "Join Observer - Joins an existing chess game only as an observer";
+
+    private final String GAMEPLAY_HELP_STRING = "Help Instructions:\n" +
+            "Redraw Chess Board - Draw the chess board on the screen\n" +
+            "Leave - Leave the game\n" +
+            "Make Move - Make a move in the game. It must be your turn and you must be a player to make a move\n" +
+            "Resign - Give up. You must be a player to do this.\n" +
+            "Highlight Legal Moves - Draw the chess board with all legal moves highlighted.";
 
     public Menu(String port){
         this.PORT = port;
@@ -71,7 +89,6 @@ public class Menu implements WebSocketObserver {
     public void runMenu(){
         System.out.println("Welcome to Chess!");
         loggedOutMenu();
-//        server.stop();
     }
 
     private void loggedOutMenu(){
@@ -127,6 +144,65 @@ public class Menu implements WebSocketObserver {
                     this.joinGame();
                     break;
                 case "6":
+                    this.joinGameAsObserver();
+                    break;
+            }
+        }
+    }
+
+//    private final String GAMEPLAY_MENU = "Choose an Item\n" +
+//            "1 - Help\n" +
+//            "2 - Redraw Chess Board\n" +
+//            "3 - Leave\n" +
+//            "4 - Make Move\n" +
+//            "5 - Resign\n" +
+//            "6 - Highlight Legal Moves\n" +
+//            "Type the number of the option you want";
+
+    private void gameplayMenu(){
+        System.out.println("Gameplay");
+
+        boolean continueProgram = true;
+
+        String userInput;
+
+        while (continueProgram){
+            System.out.println(this.GAMEPLAY_MENU);
+            userInput = getUserInput();
+            switch(userInput){
+                case "1":
+                    System.out.println(this.LOGGED_IN_HELP_STRING);
+                    break;
+                case "2":
+                    printBoard.printBoard(currentBoard);
+                    break;
+                case "3":
+                    UserGameCommand leave = new Leave(authToken, currentGameId);
+                    try {
+                        serverFacade.sendWebSocketMessage(leave);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "4":
+                    //NEEDS WORK
+                    UserGameCommand makeMove = new Leave(authToken, currentGameId);
+                    try {
+                        serverFacade.sendWebSocketMessage(makeMove);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "5":
+                    UserGameCommand resign = new Resign(authToken, currentGameId);
+                    try {
+                        serverFacade.sendWebSocketMessage(resign);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "6":
+                    //NEEDS WORK
                     this.joinGameAsObserver();
                     break;
             }
@@ -222,11 +298,15 @@ public class Menu implements WebSocketObserver {
             if(gameTeam.toLowerCase().equals("white")){
                 this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
                 System.out.println("Game successfully joined!");
-                printBoard.printBoard(selectedGame.getBoard());
+                this.currentBoard = selectedGame.getBoard();
+                printBoard.printBoard(currentBoard);
+                this.currentGameId = selectedGame.getGameId();
             }else if(gameTeam.toLowerCase().equals("black")){
                 this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
                 System.out.println("Game successfully joined!");
-                printBoard.printBoard(selectedGame.getBoard());
+                this.currentBoard = selectedGame.getBoard();
+                printBoard.printBoard(currentBoard);
+                this.currentGameId = selectedGame.getGameId();
             }else{
                 System.out.println("Incorrect team selected");
             }
@@ -253,24 +333,13 @@ public class Menu implements WebSocketObserver {
     }
 
     public void onMessageReceived(String message) {
-        // Process the received message
-//        System.out.println("Received message from websocket!!: " + message);
 
-        //Deserialize and process
-//        System.out.printf("Received: %s", message);
         ServerMessage receivedServerMessage = gson.fromJson(message, ServerMessage.class);
         ServerMessage.ServerMessageType receivedMessage = receivedServerMessage.getServerMessageType();
-
-//        for(UserSession userSession: userSessionList){
-//            if(userSession.getUserSession().equals(session)){
-//                userSession
-//            }
-//        }
 
         switch(receivedMessage){
             case LOAD_GAME:
                 LoadGame loadGame = gson.fromJson(message, LoadGame.class);
-//                handleJoinObserver(session, joinObserver);
                 handleLoadGame(loadGame);
                 break;
             case ERROR:
@@ -282,8 +351,6 @@ public class Menu implements WebSocketObserver {
                 handleNotification(notification);
                 break;
         }
-
-//        System.out.println(receivedCommand);
     }
 
     private void handleLoadGame(LoadGame loadGame){
@@ -310,12 +377,18 @@ public class Menu implements WebSocketObserver {
         }
     }
 
-//    public void webSocketTest(){
+    private void makeMove(){
+        System.out.println("Type the origin (ex: a1)");
+        String origin = this.getUserInput();
+        System.out.println("Type the destination (ex: a1)");
+        String destination = this.getUserInput();
+
 //        try{
-//            JoinObserver joinObserver = new JoinObserver("nviurenvire", 12345);
-//            this.serverFacade.sendWebSocketMessage(joinObserver);
-//        }catch (Exception e){
-//            e.printStackTrace();
+//            String authToken = this.serverFacade.login(username, password);
+//            this.authToken = authToken;
+//            this.loggedInMenu();
+//        }catch(RuntimeException e){
+//            System.out.println("Login was unsuccessful");
 //        }
-//    }
+    }
 }
