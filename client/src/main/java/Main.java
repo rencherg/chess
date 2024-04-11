@@ -16,11 +16,11 @@ public class Main {
 
     public static void main(String[] args) throws InvalidMoveException {
 
-        ServerIntegration testServerIntegration = new ServerIntegration("8080");
-        ServerIntegration testServerIntegration2 = new ServerIntegration("8080");
+//        ServerIntegration testServerIntegration = new ServerIntegration("8080");
+//        ServerIntegration testServerIntegration2 = new ServerIntegration("8080");
 
         Menu menu = new Menu(PORT);
-        Menu menu2 = new Menu(PORT);
+//        Menu menu2 = new Menu(PORT);
 
         // [B@368f3994
 
@@ -41,9 +41,9 @@ public class Main {
 //        UserGameCommand myJoinObserver = new JoinObserver("[B@368f3994", 506);
 
         //here
-        UserGameCommand myJoinPlayer = new JoinPlayer("[B@453775a3", WHITE, 630);
-
-        UserGameCommand myJoinPlayer2 = new JoinPlayer("[B@70413a95", BLACK, 630);
+//        UserGameCommand myJoinPlayer = new JoinPlayer("[B@453775a3", WHITE, 630);
+//
+//        UserGameCommand myJoinPlayer2 = new JoinPlayer("[B@70413a95", BLACK, 630);
 //        UserGameCommand myJoinObserver = new JoinObserver("[B@368f3994", 506);
 //        UserGameCommand myJoinObserver = new JoinObserver("[B@368f3994", 506);
 //        UserGameCommand myLeave = new Leave("[B@368f3994", 590);
@@ -57,22 +57,35 @@ public class Main {
 
 //        menu.sendWebSocketMessage(myJoinObserver);
 //        here
-        menu.sendWebSocketMessage(myJoinPlayer);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        menu2.sendWebSocketMessage(myJoinPlayer2);
+//        menu.sendWebSocketMessage(myJoinPlayer);
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//        menu2.sendWebSocketMessage(myJoinPlayer2);
 
 ////        menu.sendWebSocketMessage(myResign);
 ////        menu.sendWebSocketMessage(myLeave);
 //        menu.sendWebSocketMessage(myMakeMove);
 //        menu.sendWebSocketMessage(myMakeMove2);
 
-        menu.runMenu();
-        menu2.runMenu();
+
+        try{
+            menu.runMenu();
+        }catch(Exception e){}
+
+//        menu2.runMenu();
 
 
     }
 }
+
+//Bugs
+//Try to join after resignation bug
+
+//Things to write
+//Send the move that was made to all participants
+
+//Code quality
+//run implementation

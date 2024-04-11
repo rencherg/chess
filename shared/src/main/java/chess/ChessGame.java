@@ -153,8 +153,6 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition){
 
-        ChessGame.TeamColor currentColor = board.getPiece(startPosition).getTeamColor();
-
         Collection<ChessMove> validMoves = new ArrayList<>();
 
         //If piece is null return null
@@ -163,6 +161,8 @@ public class ChessGame {
         if(pieceAtPosition == null){
             return null;
         }
+
+        ChessGame.TeamColor currentColor = pieceAtPosition.getTeamColor();
 
         //✅Create global Variable for the last move made
         //✅Implement undo move functionality - probably should handle turn color

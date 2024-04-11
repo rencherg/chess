@@ -29,9 +29,6 @@ public class WSHandler {
     private List<UserSession> userSessionListData = new ArrayList<>();
     SQLGameDAO sqlGameDAO = new SQLGameDAO();
     SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
-//    SQLUserDAO sqlUserDAO = new SQLUserDAO();
-//    ServerError serverError;
-//    ServerMessage serverMessage;
 
     Gson gson = new Gson();
 
@@ -44,10 +41,8 @@ public class WSHandler {
 
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
-        // Add the new session to the list of sessions
         sessions.add(session);
         userSessionListData.add(new UserSession(session));
-//        System.out.println("WebSocket connected: " + session.getRemoteAddress());
     }
 
     @OnWebSocketMessage
@@ -143,7 +138,6 @@ public class WSHandler {
         sendToAllExceptRoot(notification, session);
     }
 
-
     private void handleJoinPlayer(Session session, JoinPlayer joinPlayer){
         String authToken = joinPlayer.getAuthString();
         int gameId = joinPlayer.getGameID();
@@ -185,6 +179,13 @@ public class WSHandler {
                 sendMessage(serverError, session);
                 return;
             }
+
+            //Ahh
+//            if(username != whiteUsername && username != blackUsername){
+//                ServerError serverError = new ServerError("Error: Bad game ID");
+//                sendMessage(serverError, session);
+//                return;
+//            }
 
             chessGame = gameToJoin.getGame();
 
@@ -310,14 +311,7 @@ public class WSHandler {
         }
 
         //Check if the game is in checkmate or stalemate
-        if(chessGame.isInStalemate(ChessGame.TeamColor.BLACK) || chessGame.isInStalemate(ChessGame.TeamColor.WHITE)){
-            chessGame.setGameOver(true);
-
-            markGameOver(gameData, session);
-
-            Notification notification = new Notification("The game has reached stalemate!");
-            sendToAll(notification, session);
-        }else if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
+        if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
             markGameOver(gameData, session);
 
             Notification notification = new Notification("Black has won the game!");
@@ -327,11 +321,21 @@ public class WSHandler {
 
             Notification notification = new Notification("White has won the game!");
             sendToAll(notification, session);
+        }else if(chessGame.isInStalemate(ChessGame.TeamColor.BLACK) || chessGame.isInStalemate(ChessGame.TeamColor.WHITE)){
+            chessGame.setGameOver(true);
+
+            markGameOver(gameData, session);
+
+            Notification notification = new Notification("The game has reached stalemate!");
+            sendToAll(notification, session);
         }
 
         LoadGame loadGame = new LoadGame(chessGame);
         sendToAll(loadGame, session);
-//        4. Notify all other users of the move that was made
+
+        //This may need to change
+        Notification notification = new Notification(username + " has made a move!");
+        sendToAllExceptRoot(notification, session);
     }
 
     private void handleResign(Session session, Resign resign){
@@ -461,8 +465,12 @@ public class WSHandler {
                 }else if(clientRole != null && clientRole.equals(ClientRole.OBSERVER)){
                     Notification notification = new Notification("Notification: " + username + ", an observer has left the game.");
                     sendToAllExceptRoot(notification, session);
-                }else{
-                    ServerError serverError = new ServerError("Error: You must be an observer or player to leave.");
+                }
+
+                try {
+                    sqlGameDAO.updateGame(joinedGame);
+                } catch (SQLException e) {
+                    ServerError serverError = new ServerError("Error: Problem with leaving the game");
                     sendMessage(serverError, session);
                 }
 
@@ -485,7 +493,6 @@ public class WSHandler {
         userSessionListData.remove(userSession);
 
         sessions.remove(session);
-//        System.out.println("WebSocket closed: " + statusCode + " - " + reason);
     }
 
     @OnWebSocketError
@@ -564,10 +571,8 @@ public class WSHandler {
     private void markGameOver(GameData gameData, Session session){
 
         ChessGame chessGame = gameData.getGame();
-
         chessGame.setGameOver(true);
 
-        //This may need to change to a set function if the chessgame object in the gameData object is not changed automatically
         try {
             sqlGameDAO.updateGame(gameData);
         } catch (SQLException e) {
@@ -576,5 +581,4 @@ public class WSHandler {
             return;
         }
     }
-
 }

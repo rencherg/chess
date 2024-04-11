@@ -3,8 +3,7 @@ package ui;
 import ServerConnection.ServerFacade;
 import ServerConnection.WebSocketIntegration;
 import ServerConnection.WebSocketObserver;
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
@@ -21,7 +20,6 @@ public class Menu implements WebSocketObserver {
     private final String PORT;
 //    private static final int PORT = 8080;
     ServerFacade serverFacade;
-//    private static Server server = new Server();
     private Scanner scanner = new Scanner(System.in);
     private String authToken = null;
     private Map<String, ChessGame> gameMap = new HashMap<>();
@@ -29,7 +27,8 @@ public class Menu implements WebSocketObserver {
     Gson gson = new Gson();
     ChessBoard currentBoard = null;
     int currentGameId = -1;
-
+    ChessGame.TeamColor color;
+    boolean isObserver = false;
 
     private final String LOGGED_OUT_MENU = "Choose an Item\n" +
             "1 - Help\n" +
@@ -127,6 +126,7 @@ public class Menu implements WebSocketObserver {
         while (continueProgram){
             System.out.println(this.LOGGED_IN_MENU);
             userInput = getUserInput();
+            boolean successJoin = false;
             switch(userInput){
                 case "1":
                     System.out.println(this.LOGGED_IN_HELP_STRING);
@@ -141,23 +141,32 @@ public class Menu implements WebSocketObserver {
                     this.listGames();
                     break;
                 case "5":
-                    this.joinGame();
+                    successJoin = this.joinGame();
+                    UserGameCommand join = new JoinPlayer(authToken, color, currentGameId);
+                    if(successJoin){
+                        try {
+                            serverFacade.sendWebSocketMessage(join);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        this.gameplayMenu();
+                    }
                     break;
                 case "6":
-                    this.joinGameAsObserver();
+                    successJoin = this.joinGameAsObserver();
+                    UserGameCommand joinAsObserver = new JoinObserver(authToken, currentGameId);
+                    if(successJoin){
+                        try {
+                            serverFacade.sendWebSocketMessage(joinAsObserver);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        this.gameplayMenu();
+                    }
                     break;
             }
         }
     }
-
-//    private final String GAMEPLAY_MENU = "Choose an Item\n" +
-//            "1 - Help\n" +
-//            "2 - Redraw Chess Board\n" +
-//            "3 - Leave\n" +
-//            "4 - Make Move\n" +
-//            "5 - Resign\n" +
-//            "6 - Highlight Legal Moves\n" +
-//            "Type the number of the option you want";
 
     private void gameplayMenu(){
         System.out.println("Gameplay");
@@ -183,17 +192,27 @@ public class Menu implements WebSocketObserver {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    break;
+                    return;
                 case "4":
-                    //NEEDS WORK
-                    UserGameCommand makeMove = new Leave(authToken, currentGameId);
-                    try {
-                        serverFacade.sendWebSocketMessage(makeMove);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    if(isObserver){
+                        System.out.println("Error: Observers can't make moves");
+                        break;
+                    }
+                    ChessMove move = getChessMove();
+                    if(move != null){
+                        UserGameCommand makeMove = new MakeMove(authToken, currentGameId, move);
+                        try {
+                            serverFacade.sendWebSocketMessage(makeMove);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     break;
                 case "5":
+                    if(isObserver){
+                        System.out.println("Error: Observers can't resign");
+                        break;
+                    }
                     UserGameCommand resign = new Resign(authToken, currentGameId);
                     try {
                         serverFacade.sendWebSocketMessage(resign);
@@ -202,8 +221,7 @@ public class Menu implements WebSocketObserver {
                     }
                     break;
                 case "6":
-                    //NEEDS WORK
-                    this.joinGameAsObserver();
+                    printBoard.highlightLegalMoves(currentBoard);
                     break;
             }
         }
@@ -281,7 +299,7 @@ public class Menu implements WebSocketObserver {
         }
     }
 
-    private void joinGame(){
+    private boolean joinGame(){
 
         if(this.gameMap.isEmpty()){
             System.out.println("No games exist to join");
@@ -296,26 +314,41 @@ public class Menu implements WebSocketObserver {
             String gameTeam = this.getUserInput();
             System.out.println(gameTeam.toLowerCase());
             if(gameTeam.toLowerCase().equals("white")){
-                this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                try{
+                    this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                }catch(Exception e){
+                    System.out.println("Error with joining the game.");
+                    return false;
+                }
                 System.out.println("Game successfully joined!");
                 this.currentBoard = selectedGame.getBoard();
-                printBoard.printBoard(currentBoard);
                 this.currentGameId = selectedGame.getGameId();
+                this.color = ChessGame.TeamColor.WHITE;
+                this.isObserver = false;
+                return true;
             }else if(gameTeam.toLowerCase().equals("black")){
-                this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                try{
+                    this.serverFacade.joinGame(authToken, gameTeam.toUpperCase(), selectedGame.getGameId());
+                }catch(Exception e){
+                    System.out.println("Error with joining the game.");
+                    return false;
+                }
                 System.out.println("Game successfully joined!");
                 this.currentBoard = selectedGame.getBoard();
-                printBoard.printBoard(currentBoard);
                 this.currentGameId = selectedGame.getGameId();
+                this.color = ChessGame.TeamColor.BLACK;
+                this.isObserver = false;
+                return true;
             }else{
                 System.out.println("Incorrect team selected");
             }
         }else{
             System.out.println("Game not found");
         }
+        return false;
     }
 
-    private void joinGameAsObserver(){
+    private boolean joinGameAsObserver(){
         if(this.gameMap.isEmpty()){
             System.out.println("No games exist to join");
         }
@@ -325,11 +358,16 @@ public class Menu implements WebSocketObserver {
         if(this.gameMap.get(gameNumber) != null){
             ChessGame selectedGame = this.gameMap.get(gameNumber);
             this.serverFacade.joinGame(authToken, null, selectedGame.getGameId());
+            this.currentBoard = selectedGame.getBoard();
+            this.currentGameId = selectedGame.getGameId();
+            this.color = ChessGame.TeamColor.WHITE;
             System.out.println("Game successfully joined as an observer!");
-            printBoard.printBoard(selectedGame.getBoard());
+            this.isObserver = true;
+            return true;
         }else{
             System.out.println("Game not found");
         }
+        return false;
     }
 
     public void onMessageReceived(String message) {
@@ -354,10 +392,10 @@ public class Menu implements WebSocketObserver {
     }
 
     private void handleLoadGame(LoadGame loadGame){
-        //Figure out how to store the board
-        System.out.println("New board received");
+        System.out.print("New board received");
         ChessGame game = loadGame.getGame();
         ChessBoard board = game.getBoard();
+        this.currentBoard = board;
         printBoard.printBoard(board);
     }
 
@@ -377,18 +415,96 @@ public class Menu implements WebSocketObserver {
         }
     }
 
-    private void makeMove(){
-        System.out.println("Type the origin (ex: a1)");
-        String origin = this.getUserInput();
-        System.out.println("Type the destination (ex: a1)");
-        String destination = this.getUserInput();
+    private ChessMove getChessMove(){
 
-//        try{
-//            String authToken = this.serverFacade.login(username, password);
-//            this.authToken = authToken;
-//            this.loggedInMenu();
-//        }catch(RuntimeException e){
-//            System.out.println("Login was unsuccessful");
-//        }
+        ChessPosition originPosition = null;
+        ChessPosition destinationPosition = null;
+        ChessPiece.PieceType promotionPieceType = null;
+
+        boolean continueOrigin = true;
+        boolean continueDestination = true;
+        boolean continuePromotion = true;
+
+        while(continueOrigin){
+            System.out.println("Type the origin (ex: a1) OR type Q to cancel");
+            String origin = this.getUserInput();
+
+            if(origin.toUpperCase().equals("Q")){
+                return null;
+            }else{
+                originPosition = getPosition(origin);
+                if(originPosition != null){
+                    continueOrigin = false;
+                }
+            }
+        }
+
+        while(continueDestination){
+            System.out.println("Type the destination (ex: a1) OR type Q to cancel");
+            String destination = this.getUserInput();
+
+            if(destination.substring(0,1).toUpperCase().equals("Q")){
+                return null;
+            }else{
+                destinationPosition = getPosition(destination);
+                if(destinationPosition != null){
+                    continueDestination = false;
+                }
+            }
+        }
+
+        while(continuePromotion){
+            System.out.println("Type the desired promotion piece (QBNR), Q for quit or M for N/A");
+            String promotionString = this.getUserInput();
+
+            if(promotionString.substring(0,1).toUpperCase().equals("Q")){
+                return null;
+            }else if(promotionString.substring(0,1).toUpperCase().equals("M")){
+                continuePromotion = false;
+            }else{
+                promotionPieceType = getPromotionPiece(promotionString);
+                if(promotionPieceType != null){
+                    continuePromotion = false;
+                }
+            }
+        }
+
+        return new ChessMove(originPosition, destinationPosition, promotionPieceType);
+    }
+
+    private ChessPosition getPosition(String input) {
+
+        char firstChar = input.charAt(0);
+        char secondChar = input.charAt(1);
+
+        if ((input == null) || (input.equals("")) || (input.length() != 2) || (firstChar < 'a' || firstChar > 'h') || (secondChar < '1' || secondChar > '8')){
+            return null;
+        }
+        ChessPosition chessPosition = new ChessPosition(secondChar - '0', firstChar - 'a' + 1);
+//        ChessPosition chessPosition = new ChessPosition(firstChar - 'a' + 1, secondChar - '0');
+
+        return chessPosition;
+    }
+
+    private ChessPiece.PieceType getPromotionPiece(String input){
+
+        if (input.length() != 1){
+            return null;
+        }
+
+        String inputUpper = input.toUpperCase();
+
+        switch(input){
+            case "Q":
+                return ChessPiece.PieceType.QUEEN;
+            case "N":
+                return ChessPiece.PieceType.KNIGHT;
+            case "B":
+                return ChessPiece.PieceType.BISHOP;
+            case "R":
+                return ChessPiece.PieceType.ROOK;
+        }
+
+        return null;
     }
 }
