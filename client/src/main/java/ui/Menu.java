@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 public class Menu implements WebSocketObserver {
 
-    private final String PORT;
+    private String port;
 //    private static final int PORT = 8080;
     ServerFacade serverFacade;
     private Scanner scanner = new Scanner(System.in);
@@ -30,14 +30,14 @@ public class Menu implements WebSocketObserver {
     ChessGame.TeamColor color;
     boolean isObserver = false;
 
-    private final String LOGGED_OUT_MENU = "Choose an Item\n" +
+    private static final String LOGGED_OUT_MENU = "Choose an Item\n" +
             "1 - Help\n" +
             "2 - Quit\n" +
             "3 - Login\n" +
             "4 - Register\n" +
             "Type the number of the option you want";
 
-    private final String LOGGED_IN_MENU = "Choose an Item\n" +
+    private static final String LOGGED_IN_MENU = "Choose an Item\n" +
             "1 - Help\n" +
             "2 - Logout\n" +
             "3 - Create Game\n" +
@@ -46,7 +46,7 @@ public class Menu implements WebSocketObserver {
             "6 - Join Observer\n" +
             "Type the number of the option you want";
 
-    private final String GAMEPLAY_MENU = "Choose an Item\n" +
+    private static final String GAMEPLAY_MENU = "Choose an Item\n" +
             "1 - Help\n" +
             "2 - Redraw Chess Board\n" +
             "3 - Leave\n" +
@@ -55,19 +55,19 @@ public class Menu implements WebSocketObserver {
             "6 - Highlight Legal Moves\n" +
             "Type the number of the option you want";
 
-    private final String LOGGED_OUT_HELP_STRING = "Help Instructions:\n" +
+    private static final String LOGGED_OUT_HELP_STRING = "Help Instructions:\n" +
             "Quit - Exit the program\n" +
             "Login - Enter credentials to create a new login session\n" +
             "Register - Register as a new user";
 
-    private final String LOGGED_IN_HELP_STRING = "Help Instructions:\n" +
+    private static final String LOGGED_IN_HELP_STRING = "Help Instructions:\n" +
             "Logout - Exits the current login session\n" +
             "Create Game - Creates a new chess game\n" +
             "List Games - Lists all existing chess games\n" +
             "Join Game - Joins an existing chess game\n" +
             "Join Observer - Joins an existing chess game only as an observer";
 
-    private final String GAMEPLAY_HELP_STRING = "Help Instructions:\n" +
+    private static final String GAMEPLAY_HELP_STRING = "Help Instructions:\n" +
             "Redraw Chess Board - Draw the chess board on the screen\n" +
             "Leave - Leave the game\n" +
             "Make Move - Make a move in the game. It must be your turn and you must be a player to make a move\n" +
@@ -75,8 +75,8 @@ public class Menu implements WebSocketObserver {
             "Highlight Legal Moves - Draw the chess board with all legal moves highlighted.";
 
     public Menu(String port){
-        this.PORT = port;
-        serverFacade = new ServerFacade(String.valueOf(PORT), this);
+        this.port = port;
+        serverFacade = new ServerFacade(String.valueOf(port), this);
 //        var port = server.run(PORT);
         System.out.println("Started test HTTP server on " + port);
     }

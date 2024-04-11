@@ -73,9 +73,6 @@ public class WSHandler {
                 break;
         }
 
-//        System.out.println(receivedCommand);
-//        session.getRemote().sendString("WebSocket response: " + message);
-
     }
 
     private void handleJoinObserver(Session session, JoinObserver joinObserver){
