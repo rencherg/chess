@@ -198,8 +198,7 @@ public class WSHandler {
         String authToken = makeMove.getAuthString();
         int gameId = makeMove.getGameID();
 
-        ChessGame chessGame;
-        GameData gameData;
+
         ChessMove chessMove = makeMove.getMove();
 
         String username = checkAuthToken(authToken, session);
@@ -207,27 +206,12 @@ public class WSHandler {
             return;
         }
 
-        //verify game id
-        try {
-            gameData = sqlGameDAO.getGame(gameId);
-            if(gameData == null){
-                ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
-                return;
-            }
-
-            chessGame = gameData.getGame();
-
-            if(chessGame.isGameOver()){
-                ServerError serverError = new ServerError("Error: The game is over");
-                sendMessage(serverError, session);
-                return;
-            }
-        } catch (SQLException e) {
-            ServerError serverError = new ServerError("Error: Bad game ID");
-            sendMessage(serverError, session);
+        GameData gameData = checkGameIdHelper(gameId, session);
+        if(gameData == null){
             return;
         }
+
+        ChessGame chessGame = gameData.getGame();
 
         for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
@@ -299,34 +283,18 @@ public class WSHandler {
     private void handleResign(Session session, Resign resign){
         String authToken = resign.getAuthString();
         int gameId = resign.getGameID();
-        ChessGame chessGame;
-        GameData gameData;
 
         String username = checkAuthToken(authToken, session);
         if(username == null){
             return;
         }
 
-        //verify game id
-        try {
-            gameData = sqlGameDAO.getGame(gameId);
-            if(gameData == null){
-                ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
-                return;
-            }
-
-            chessGame = gameData.getGame();
-
-            if(chessGame.isGameOver()){
-                ServerError serverError = new ServerError("Error: The game is over");
-                sendMessage(serverError, session);
-                return;
-            }
-        } catch (SQLException e) {
-            //Notify of bad game id
+        GameData gameData = checkGameIdHelper(gameId, session);
+        if(gameData == null){
             return;
         }
+
+        ChessGame chessGame = gameData.getGame();
 
         for(UserSession userSession: userSessionListData){
             if(userSession.getUserSession().equals(session)){
@@ -533,5 +501,31 @@ public class WSHandler {
             return null;
         }
         return username;
+    }
+
+    //verify game id
+    private GameData checkGameIdHelper(int gameId, Session session){
+        GameData gameData;
+        try {
+            gameData = sqlGameDAO.getGame(gameId);
+            if(gameData == null){
+                ServerError serverError = new ServerError("Error: Bad game ID");
+                sendMessage(serverError, session);
+                return null;
+            }
+
+            ChessGame chessGame = gameData.getGame();
+
+            if(chessGame.isGameOver()){
+                ServerError serverError = new ServerError("Error: The game is over");
+                sendMessage(serverError, session);
+                return null;
+            }
+        } catch (SQLException e) {
+            ServerError serverError = new ServerError("Error: Bad game ID");
+            sendMessage(serverError, session);
+            return null;
+        }
+        return gameData;
     }
 }
