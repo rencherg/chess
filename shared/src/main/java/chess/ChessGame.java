@@ -64,10 +64,6 @@ public class ChessGame {
         return gameName;
     }
 
-//    public void setGameName(String gameName) {
-//        this.gameName = gameName;
-//    }
-
     public ChessGame() {
 
         board = new ChessBoard();
