@@ -180,13 +180,6 @@ public class WSHandler {
                 return;
             }
 
-            //Ahh
-//            if(username != whiteUsername && username != blackUsername){
-//                ServerError serverError = new ServerError("Error: Bad game ID");
-//                sendMessage(serverError, session);
-//                return;
-//            }
-
             chessGame = gameToJoin.getGame();
 
             if(chessGame.isGameOver()){

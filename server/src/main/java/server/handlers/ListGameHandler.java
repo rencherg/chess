@@ -22,16 +22,6 @@ public class ListGameHandler extends ParentHandler{
 
             GameData[] gameData = this.gameService.getGame(authToken);
 
-//            for(GameData game:gameData){
-//                if(game.getWhiteUsername() == null){
-//                    game.setWhiteUsername("empty");
-//                }
-//
-//                if(game.getBlackUsername() == null){
-//                    game.setBlackUsername("empty");
-//                }
-//            }
-
             gameResponseMap.put("games", gameData);
 
             gsonString = gson.toJson(gameResponseMap);
