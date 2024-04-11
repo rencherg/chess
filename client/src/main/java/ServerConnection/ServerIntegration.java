@@ -60,7 +60,9 @@ public class ServerIntegration {
 
         try {
 
-            token = handleRequestDetails(urlString, jsonBody);
+            JsonObject jsonObject = handleRequestDetails(urlString, jsonBody, null);
+
+            token = jsonObject.get("authToken").getAsString();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +79,9 @@ public class ServerIntegration {
 
         try {
 
-            token = handleRequestDetails(urlString, jsonBody);
+            JsonObject jsonObject = handleRequestDetails(urlString, jsonBody, null);
+
+            token = jsonObject.get("authToken").getAsString();
 
         } catch (Exception e) {
             throw new RuntimeException("login failed");
@@ -86,7 +90,7 @@ public class ServerIntegration {
         return token;
     }
 
-    private String handleRequestDetails(String urlString, String jsonBody) throws IOException {
+    private JsonObject handleRequestDetails(String urlString, String jsonBody, String authToken) throws IOException {
 
         URL url = new URL(urlString);
 
@@ -96,6 +100,9 @@ public class ServerIntegration {
         connection.setRequestMethod("POST");
 
         connection.setRequestProperty("Content-Type", "application/json");
+        if(authToken != null){
+            connection.addRequestProperty("Authorization", authToken);
+        }
 
         connection.setDoOutput(true);
 
@@ -122,11 +129,9 @@ public class ServerIntegration {
 
         JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
-        String token = jsonObject.get("authToken").getAsString();
-
         connection.disconnect();
 
-        return token;
+        return jsonObject;
     }
 
     public void logout(String authToken) {
@@ -166,44 +171,9 @@ public class ServerIntegration {
 
         try {
 
-            URL url = new URL(urlString);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            connection.setReadTimeout(5000);
-            connection.setRequestMethod("POST");
-
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.addRequestProperty("Authorization", authToken);
-
-            connection.setDoOutput(true);
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode > 399){
-                throw new RuntimeException();
-            }
-
-            StringBuilder responseBody = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    responseBody.append(line);
-                }
-            }
-
-            String jsonString = responseBody.toString();
-
-            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+            JsonObject jsonObject = handleRequestDetails(urlString, jsonBody, authToken);
 
             gameId = jsonObject.get("gameID").getAsInt();
-
-            connection.disconnect();
 
         } catch (Exception e) {
             throw new RuntimeException("create game failed");
