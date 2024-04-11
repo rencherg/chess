@@ -197,25 +197,13 @@ public class WSHandler {
     private void handleMakeMove(Session session, MakeMove makeMove){
         String authToken = makeMove.getAuthString();
         int gameId = makeMove.getGameID();
-        String username;
+
         ChessGame chessGame;
         GameData gameData;
         ChessMove chessMove = makeMove.getMove();
 
-        //Check authToken
-        try {
-            List<UserSession> userSessionListDataBackup = this.userSessionListData;
-            AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData == null){
-                ServerError serverError = new ServerError("Error: Failed authentication");
-                sendMessage(serverError, session);
-                return;
-            }else{
-                username = authData.getUsername();
-            }
-        } catch (SQLException e) {
-            ServerError serverError = new ServerError("Error: Failed authentication");
-            sendMessage(serverError, session);
+        String username = checkAuthToken(authToken, session);
+        if(username == null){
             return;
         }
 
@@ -311,23 +299,11 @@ public class WSHandler {
     private void handleResign(Session session, Resign resign){
         String authToken = resign.getAuthString();
         int gameId = resign.getGameID();
-        String username;
         ChessGame chessGame;
         GameData gameData;
 
-        //Check authToken
-        try {
-            AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData == null){
-                ServerError serverError = new ServerError("Error: Failed authentication");
-                sendMessage(serverError, session);
-                return;
-            }else{
-                username = authData.getUsername();
-            }
-        } catch (SQLException e) {
-            ServerError serverError = new ServerError("Error: Failed authentication");
-            sendMessage(serverError, session);
+        String username = checkAuthToken(authToken, session);
+        if(username == null){
             return;
         }
 
@@ -384,23 +360,10 @@ public class WSHandler {
     private void handleLeave(Session session, Leave leave){
         String authToken = leave.getAuthString();
         int gameId = leave.getGameID();
-        String username;
         GameData joinedGame;
 
-
-        //Check authToken
-        try {
-            AuthData authData = sqlAuthDAO.getAuth(authToken);
-            if(authData == null){
-                ServerError serverError = new ServerError("Error: Failed authentication");
-                sendMessage(serverError, session);
-                return;
-            }else{
-                username = authData.getUsername();
-            }
-        } catch (SQLException e) {
-            ServerError serverError = new ServerError("Error: Failed authentication");
-            sendMessage(serverError, session);
+        String username = checkAuthToken(authToken, session);
+        if(username == null){
             return;
         }
 
