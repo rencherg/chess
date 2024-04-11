@@ -20,7 +20,7 @@ public class WebSocketIntegration extends Endpoint {
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
 
-                @OnMessage
+                @Override
                 public void onMessage(String message) {
                     observer.onMessageReceived(message);
                 }
@@ -36,7 +36,7 @@ public class WebSocketIntegration extends Endpoint {
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-    @OnOpen
+    @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 }
