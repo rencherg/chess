@@ -23,11 +23,11 @@ public class WebSocketIntegration extends Endpoint {
                 public void onMessage(String message) {
                     observer.onMessageReceived(message);
                 }
-            });
+            }
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void send(UserGameCommand userGameCommand) throws Exception {
