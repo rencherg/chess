@@ -21,8 +21,9 @@ public class RegisterHandler extends ParentHandler {
 
             if(authData != null){
                 res.status(200);
-                responseMap.put("authToken", authData.getAuthToken());
                 responseMap.put("username", authData.getUsername());
+                responseMap.put("authToken", authData.getAuthToken());
+
             }else{
                 res.status(400);
                 responseMap.put("message", "Error: bad request");
@@ -30,9 +31,9 @@ public class RegisterHandler extends ParentHandler {
         }
         catch (RuntimeException exception){
             this.parseException(exception, res);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 

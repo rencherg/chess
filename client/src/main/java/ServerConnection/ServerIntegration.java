@@ -56,47 +56,11 @@ public class ServerIntegration {
 
         String urlString = "http://localhost:" + this.port + "/user";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"email\":\"" + email + "\"}";
-        String token = null;
+        String token;
 
         try {
 
-            URL url = new URL(urlString);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            connection.setReadTimeout(5000);
-            connection.setRequestMethod("POST");
-
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            connection.setDoOutput(true);
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode > 399){
-                throw new RuntimeException();
-            }
-
-            StringBuilder responseBody = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    responseBody.append(line);
-                }
-            }
-
-            String jsonString = responseBody.toString();
-
-            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-
-            token = jsonObject.get("authToken").getAsString();
-
-            connection.disconnect();
+            token = handleRequestDetails(urlString, jsonBody);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,55 +73,58 @@ public class ServerIntegration {
     public String login(String username, String password) {
         String urlString = "http://localhost:" + this.port + "/session";
         String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
-        String token = null;
+        String token;
 
         try {
 
-            URL url = new URL(urlString);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            connection.setReadTimeout(5000);
-            connection.setRequestMethod("POST");
-
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            connection.setDoOutput(true);
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode > 399){
-                throw new RuntimeException();
-            }
-
-            if (responseCode > 399){
-                throw new RuntimeException();
-            }
-
-            StringBuilder responseBody = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    responseBody.append(line);
-                }
-            }
-
-            String jsonString = responseBody.toString();
-
-            JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-
-            token = jsonObject.get("authToken").getAsString();
-
-            connection.disconnect();
+            token = handleRequestDetails(urlString, jsonBody);
 
         } catch (Exception e) {
             throw new RuntimeException("login failed");
         }
+
+        return token;
+    }
+
+    private String handleRequestDetails(String urlString, String jsonBody) throws IOException {
+
+        URL url = new URL(urlString);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        connection.setReadTimeout(5000);
+        connection.setRequestMethod("POST");
+
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonBody.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode > 399){
+            throw new RuntimeException();
+        }
+
+        StringBuilder responseBody = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseBody.append(line);
+            }
+        }
+
+        String jsonString = responseBody.toString();
+
+        JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        String token = jsonObject.get("authToken").getAsString();
+
+        connection.disconnect();
 
         return token;
     }
