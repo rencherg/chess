@@ -29,6 +29,7 @@ public class WSHandler {
     private List<UserSession> userSessionListData = new ArrayList<>();
     SQLGameDAO sqlGameDAO = new SQLGameDAO();
     SQLAuthDAO sqlAuthDAO = new SQLAuthDAO();
+    WSHelper wsHelper = new WSHelper();
 
     Gson gson = new Gson();
 
@@ -93,7 +94,7 @@ public class WSHandler {
 
             if(gameToJoin == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }
 
@@ -101,12 +102,12 @@ public class WSHandler {
 
             if(chessGame.isGameOver()){
                 ServerError serverError = new ServerError("Error: The game is over");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Bad game ID or other SQL issue");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -118,9 +119,9 @@ public class WSHandler {
         }
 
         LoadGame loadGame = new LoadGame(chessGame);
-        sendMessage(loadGame, session);
+        wsHelper.sendMessage(loadGame, session);
         Notification notification = new Notification("Notification: " + username + " has joined as an observer.");
-        sendToAllExceptRoot(notification, session);
+        wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
     }
 
     private void handleJoinPlayer(Session session, JoinPlayer joinPlayer){
@@ -132,7 +133,7 @@ public class WSHandler {
 
         if(teamColor == null){
             ServerError serverError = new ServerError("Error: Incorrect Color");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -150,7 +151,7 @@ public class WSHandler {
 
             if(gameToJoin == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }
 
@@ -158,16 +159,16 @@ public class WSHandler {
 
             if(chessGame.isGameOver()){
                 ServerError serverError = new ServerError("Error: Game is over");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }else if(!((whiteUsername != null && whiteUsername.equals(username) && teamColor.equals(ChessGame.TeamColor.WHITE)) || (blackUsername != null && blackUsername.equals(username) && teamColor.equals(ChessGame.TeamColor.BLACK)))){
                 ServerError serverError = new ServerError("Error: Incorrect Color");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Bad game ID");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -186,9 +187,9 @@ public class WSHandler {
         }
 
         LoadGame loadGame = new LoadGame(chessGame);
-        sendMessage(loadGame, session);
+        wsHelper.sendMessage(loadGame, session);
         Notification notification = new Notification("Notification: " + username + " has joined the " + joinedTeam + " team.");
-        sendToAllExceptRoot(notification, session);
+        wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
     }
 
     private void handleMakeMove(Session session, MakeMove makeMove){
@@ -219,13 +220,13 @@ public class WSHandler {
                 //Check that the participant resigning is a player
                 if(clientRole == null || clientRole.equals(ClientRole.OBSERVER)){
                     ServerError serverError = new ServerError("Error: Only players can make moves");
-                    sendMessage(serverError, session);
+                    wsHelper.sendMessage(serverError, session);
                     return;
 
                 //Check that its the players turn that wants to make a move
                 }else if(!((clientRole.equals(ClientRole.BLACK) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK))||(clientRole.equals(ClientRole.WHITE) && chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE)))){
                     ServerError serverError = new ServerError("Error: It's not your turn");
-                    sendMessage(serverError, session);
+                    wsHelper.sendMessage(serverError, session);
                     return;
                 }
             }
@@ -236,7 +237,7 @@ public class WSHandler {
             chessGame.makeMove(chessMove);
         }catch(InvalidMoveException e){
             ServerError serverError = new ServerError("Error: Invalid move");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -245,7 +246,7 @@ public class WSHandler {
             sqlGameDAO.updateGame(gameData);
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Problem with the move");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -254,27 +255,27 @@ public class WSHandler {
             markGameOver(gameData, session);
 
             Notification notification = new Notification("Black has won the game!");
-            sendToAll(notification, session);
+            wsHelper.sendToAll(notification, session, userSessionListData);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
             markGameOver(gameData, session);
 
             Notification notification = new Notification("White has won the game!");
-            sendToAll(notification, session);
+            wsHelper.sendToAll(notification, session, userSessionListData);
         }else if(chessGame.isInStalemate(ChessGame.TeamColor.BLACK) || chessGame.isInStalemate(ChessGame.TeamColor.WHITE)){
             chessGame.setGameOver(true);
 
             markGameOver(gameData, session);
 
             Notification notification = new Notification("The game has reached stalemate!");
-            sendToAll(notification, session);
+            wsHelper.sendToAll(notification, session, userSessionListData);
         }
 
         LoadGame loadGame = new LoadGame(chessGame);
-        sendToAll(loadGame, session);
+        wsHelper.sendToAll(loadGame, session, userSessionListData);
 
         //This may need to change
         Notification notification = new Notification(username + " has made a move!");
-        sendToAllExceptRoot(notification, session);
+        wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
     }
 
     private void handleResign(Session session, Resign resign){
@@ -301,16 +302,16 @@ public class WSHandler {
                 //Check that the participant resigning is a player
                 if(clientRole == null || clientRole.equals(ClientRole.OBSERVER)){
                     ServerError serverError = new ServerError("Error: You must be a player to resign.");
-                    sendMessage(serverError, session);
+                    wsHelper.sendMessage(serverError, session);
                     return;
                 }else{
 
                     if(clientRole.equals(ClientRole.WHITE)){
                         Notification notification = new Notification("Notification: " + username + ", the white player has resigned! Black wins the game!");
-                        sendToAll(notification, session);
+                        wsHelper.sendToAll(notification, session, userSessionListData);
                     }else if(clientRole.equals(ClientRole.BLACK)) {
                         Notification notification = new Notification("Notification: " + username + ", the black player has resigned! White wins the game!");
-                        sendToAll(notification, session);
+                        wsHelper.sendToAll(notification, session, userSessionListData);
                     }
 
                     markGameOver(gameData, session);
@@ -337,13 +338,13 @@ public class WSHandler {
             joinedGame = sqlGameDAO.getGame(gameId);
             if(joinedGame == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return;
             }
 
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Bad game ID");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return;
         }
 
@@ -355,21 +356,21 @@ public class WSHandler {
                 if(clientRole != null && clientRole.equals(ClientRole.BLACK)){
                     joinedGame.setBlackUsername(null);
                     Notification notification = new Notification("Notification: " + username + ", the black player has left the game.");
-                    sendToAllExceptRoot(notification, session);
+                    wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
                 }else if(clientRole != null && clientRole.equals(ClientRole.WHITE)){
                     joinedGame.setWhiteUsername(null);
                     Notification notification = new Notification("Notification: " + username + ", the white player has left the game.");
-                    sendToAllExceptRoot(notification, session);
+                    wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
                 }else if(clientRole != null && clientRole.equals(ClientRole.OBSERVER)){
                     Notification notification = new Notification("Notification: " + username + ", an observer has left the game.");
-                    sendToAllExceptRoot(notification, session);
+                    wsHelper.sendToAllExceptRoot(notification, session, userSessionListData);
                 }
 
                 try {
                     sqlGameDAO.updateGame(joinedGame);
                 } catch (SQLException e) {
                     ServerError serverError = new ServerError("Error: Problem with leaving the game");
-                    sendMessage(serverError, session);
+                    wsHelper.sendMessage(serverError, session);
                 }
 
                 userSession.setClientRole(null);
@@ -377,93 +378,16 @@ public class WSHandler {
 
             }
         }
-
-        //Other Items
-//        3. Front end needs to terminate websocket connection!
-
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
 
         // Remove the closed session from the list of sessions
-        UserSession userSession = getUserSession(session);
+        UserSession userSession = wsHelper.getUserSession(session, userSessionListData);
         userSessionListData.remove(userSession);
 
         sessions.remove(session);
-    }
-
-    @OnWebSocketError
-    public void onError(Session session, Throwable throwable) {
-//        System.out.println("WebSocket error: " + throwable.getMessage());
-    }
-
-    //Sends message to all users in the same game
-    private void sendToAll(ServerMessage serverMessage, Session rootSession) {
-
-        UserSession rootUserSession = getUserSession(rootSession);
-        int id = rootUserSession.getGameId();
-
-        if(rootUserSession == null){
-            System.err.print("Error: Root user not found.");
-            return;
-        }
-
-        userSessionListData.forEach(userSession -> {
-            try {
-                int userId = userSession.getGameId();
-                if(userId == id){
-                    final Session session = userSession.getUserSession();
-                    sendMessage(serverMessage, session);
-                }
-            } catch (Exception e) {
-                System.err.println("Error broadcasting message: " + e.getMessage());
-            }
-        });
-    }
-
-    //Sends message to all users in the same game
-    private void sendToAllExceptRoot(ServerMessage serverMessage, Session rootSession) {
-
-        UserSession rootUserSession = getUserSession(rootSession);
-        int id = rootUserSession.getGameId();
-
-        if(rootUserSession == null){
-            System.err.print("Error: Root user not found.");
-            return;
-        }
-
-        userSessionListData.forEach(userSession -> {
-            try {
-                int userId = userSession.getGameId();
-                if(userId == id && !rootUserSession.equals(userSession)){
-                    final Session session = userSession.getUserSession();
-                    sendMessage(serverMessage, session);
-                }
-            } catch (Exception e) {
-                System.err.println("Error broadcasting message: " + e.getMessage());
-            }
-        });
-    }
-
-    //send a message to the given session
-    private void sendMessage(ServerMessage serverMessage, Session session) {
-        try {
-            String message = gson.toJson(serverMessage);
-            session.getRemote().sendString(message);
-        } catch (Exception e) {
-            System.err.println("Error broadcasting message: " + e.getMessage());
-        }
-    }
-
-    //Get the userSession object given a Session object
-    private UserSession getUserSession(Session session) {
-        for (UserSession userSession : userSessionListData) {
-            if (userSession.getUserSession().equals(session)) {
-                return userSession;
-            }
-        }
-        return null;
     }
 
     private void markGameOver(GameData gameData, Session session){
@@ -475,8 +399,7 @@ public class WSHandler {
             sqlGameDAO.updateGame(gameData);
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Problem with the move");
-            sendMessage(serverError, session);
-            return;
+            wsHelper.sendMessage(serverError, session);
         }
     }
 
@@ -487,14 +410,14 @@ public class WSHandler {
             AuthData authData = sqlAuthDAO.getAuth(authToken);
             if(authData == null){
                 ServerError serverError = new ServerError("Error: Failed authentication");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return null;
             }else{
                 username = authData.getUsername();
             }
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Failed authentication");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return null;
         }
         return username;
@@ -507,7 +430,7 @@ public class WSHandler {
             gameData = sqlGameDAO.getGame(gameId);
             if(gameData == null){
                 ServerError serverError = new ServerError("Error: Bad game ID");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return null;
             }
 
@@ -515,12 +438,12 @@ public class WSHandler {
 
             if(chessGame.isGameOver()){
                 ServerError serverError = new ServerError("Error: The game is over");
-                sendMessage(serverError, session);
+                wsHelper.sendMessage(serverError, session);
                 return null;
             }
         } catch (SQLException e) {
             ServerError serverError = new ServerError("Error: Bad game ID");
-            sendMessage(serverError, session);
+            wsHelper.sendMessage(serverError, session);
             return null;
         }
         return gameData;
