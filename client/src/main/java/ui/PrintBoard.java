@@ -173,20 +173,24 @@ public class PrintBoard {
             if(input.toUpperCase().equals("Q")){
                 return null;
             }else{
-                char firstChar = input.charAt(0);
-                char secondChar = input.charAt(1);
-
-                if ((input == null) || (input.equals("")) || (input.length() != 2) || (firstChar < 'a' || firstChar > 'h') || (secondChar < '1' || secondChar > '8')){
-                    return null;
-                }
-
-                ChessPosition chessPosition = new ChessPosition(secondChar - '0', firstChar - 'a' + 1);
-
-                return chessPosition;
+                return getPositionFromCoordinates(input);
             }
         }
 
         return null;
+    }
+
+    public ChessPosition getPositionFromCoordinates(String input){
+        char firstChar = input.charAt(0);
+        char secondChar = input.charAt(1);
+
+        if ((input == null) || (input.equals("")) || (input.length() != 2) || (firstChar < 'a' || firstChar > 'h') || (secondChar < '1' || secondChar > '8')){
+            return null;
+        }
+
+        ChessPosition chessPosition = new ChessPosition(secondChar - '0', firstChar - 'a' + 1);
+
+        return chessPosition;
     }
 
     private void printBoardHighlighted(ChessBoard board, ChessPosition position, Collection<ChessMove> validMoves){

@@ -432,7 +432,7 @@ public class Menu implements WebSocketObserver {
             if(origin.toUpperCase().equals("Q")){
                 return null;
             }else{
-                originPosition = getPosition(origin);
+                originPosition = printBoard.getPositionFromCoordinates(origin);
                 if(originPosition != null){
                     continueOrigin = false;
                 }
@@ -446,7 +446,7 @@ public class Menu implements WebSocketObserver {
             if(destination.substring(0,1).toUpperCase().equals("Q")){
                 return null;
             }else{
-                destinationPosition = getPosition(destination);
+                destinationPosition = printBoard.getPositionFromCoordinates(destination);
                 if(destinationPosition != null){
                     continueDestination = false;
                 }
@@ -470,20 +470,6 @@ public class Menu implements WebSocketObserver {
         }
 
         return new ChessMove(originPosition, destinationPosition, promotionPieceType);
-    }
-
-    private ChessPosition getPosition(String input) {
-
-        char firstChar = input.charAt(0);
-        char secondChar = input.charAt(1);
-
-        if ((input == null) || (input.equals("")) || (input.length() != 2) || (firstChar < 'a' || firstChar > 'h') || (secondChar < '1' || secondChar > '8')){
-            return null;
-        }
-        ChessPosition chessPosition = new ChessPosition(secondChar - '0', firstChar - 'a' + 1);
-//        ChessPosition chessPosition = new ChessPosition(firstChar - 'a' + 1, secondChar - '0');
-
-        return chessPosition;
     }
 
     private ChessPiece.PieceType getPromotionPiece(String input){
