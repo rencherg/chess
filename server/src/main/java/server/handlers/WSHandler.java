@@ -254,12 +254,12 @@ public class WSHandler {
         if(chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)){
             markGameOver(gameData, session);
 
-            Notification notification = new Notification("Black has won the game!");
+            Notification notification = new Notification("Black has won the game by checkmate!");
             wsHelper.sendToAll(notification, session, userSessionListData);
         }else if(chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)){
             markGameOver(gameData, session);
 
-            Notification notification = new Notification("White has won the game!");
+            Notification notification = new Notification("White has won the game by checkmate!");
             wsHelper.sendToAll(notification, session, userSessionListData);
         }else if(chessGame.isInStalemate(ChessGame.TeamColor.BLACK) || chessGame.isInStalemate(ChessGame.TeamColor.WHITE)){
             chessGame.setGameOver(true);
